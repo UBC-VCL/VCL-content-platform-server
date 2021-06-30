@@ -1,18 +1,25 @@
-const router = require("express").Router(); //require express router
+import express from 'express';
 
-//Import Controller
-const Controller = require("./controller.js");
+//CRUD controller imports
+import {
+  createSnapshot,
+  getAllSnapshots,
+  deleteSnapshot,
+  getSnapshot,
+} from "./controllers/crudController.js";
+
+const router = express.Router();
 
 //Define POST route for creating timeline snapshot
-router.post("/api/snapshots", Controller.createSnapshot);
+router.post("/api/snapshots", createSnapshot);
 
 // Define GET route for getting all timeline snapshots
-router.get("/api/snapshots", Controller.getAllSnapshots);
+router.get("/api/snapshots", getAllSnapshots);
 
 // Define DEL route for deleting a snapshot given the ID
-router.delete("/api/snapshots/:id", Controller.deleteSnapshot);
+router.delete("/api/snapshots/:id", deleteSnapshot);
 
 // Definte GET route for getting a snapshot given the ID
-router.get("/api/snapshots/:id", Controller.getSnapshot);
+router.get("/api/snapshots/:id", getSnapshot);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-let Snapshot = require("./models/snapshot.model");
+import Snapshot from '../models/snapshot.model.js';
 
 /**
  * 
@@ -14,7 +14,7 @@ let Snapshot = require("./models/snapshot.model");
  *
  * @param Responds with created object.
  */
-exports.createSnapshot = async (req, res) => {
+export const createSnapshot = async (req, res) => {
   const newSnapshot = new Snapshot({
     title: req.body.title,
     description: req.body.description,
@@ -44,7 +44,7 @@ exports.createSnapshot = async (req, res) => {
  * @param Expected request body: None
  * @param Responds with all timeline objects found in database
  */
-exports.getAllSnapshots = async (req, res) => {
+export const getAllSnapshots = async (req, res) => {
   Snapshot.find()
   .exec()
   .then((data) => {
@@ -67,7 +67,7 @@ exports.getAllSnapshots = async (req, res) => {
  * @param Expected request body: None, request url parameter: id - ID of the timeline snapshot to delete
  * @param Responds with a message saying deleted if successful, along with the deleted object, or an error message if unsuccessful
  */
-exports.deleteSnapshot = async (req, res) => {
+ export const deleteSnapshot = async (req, res) => {
   let id = req.params.id;
   Snapshot.findByIdAndDelete(id)
   .exec()
@@ -91,7 +91,7 @@ exports.deleteSnapshot = async (req, res) => {
  * @param Responds with a message saying retrieved if successful, along with the retrieved object, or an error message if unsuccessful
  */
 
-exports.getSnapshot = async (req, res) => {
+ export const getSnapshot = async (req, res) => {
     let id = req.params.id;
     Snapshot.findById(id)
     .exec()

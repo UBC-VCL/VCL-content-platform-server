@@ -1,18 +1,17 @@
-require("dotenv").config(); // .env for environment variables
-const express = require("express"); // Express web server framework
-const cors = require("cors"); // Allows for Cross Origin Resource Sharing
-const path = require("path"); // Useful for path manipulation
-const mongoose = require("mongoose"); //Mongoose is a MongoDB library
-const router = require("./router.js");
+import dotenv from "dotenv"; // .env for environment variables
+import express from "express"; // Express web server framework
+import cors from "cors"; // Allows for Cross Origin Resource Sharing
+import path from "path"; // Useful for path manipulation
+import mongoose from "mongoose"; //Mongoose is a MongoDB library
+import router from "./router.js";
 
 let app = express();
+
+dotenv.config();
 
 //Use CORS and allow JSON requests/responses
 app.use(cors());
 app.use(express.json());
-
-//Serve client build files on root url (required for heroku deployment)
-app.use(express.static(path.join(__dirname, "/../client/build")));
 
 //Get uri from environment variables
 const uri = process.env.ATLAS_URI;
