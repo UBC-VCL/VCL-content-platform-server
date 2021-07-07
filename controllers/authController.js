@@ -14,6 +14,13 @@ import User from "../models/user.model.js";
  */
 export const createUser = async (req, res) => {
   try {
+    if (!(req.body.username && req.body.password && req.body.permissions)) {
+      res.status(400).json({
+        message: "Invalid request body.",
+      });
+      return;
+    }
+
     // Generate 21 length tokens
     const access_token = nanoid();
     const refresh_token = nanoid();
@@ -54,20 +61,56 @@ export const getUsers = async (req, res) => {};
 
 export const authenticateUser = async (req, res) => {
   try {
-    const user = await User.find({
+    if (!(req.body.username && req.body.password)) {
+      res.status(400).json({
+        message: "Invalid request body.",
+      });
+      return;
+    }
+
+    const user = await User.findOne({
       username: req.body.username,
     });
 
-    res.status(200).json({
-      message: "",
-      data: user,
-    });
+    if (user) {
+      const match = await bcrypt.compare(req.body.password, user.hash);
+      
+      // If user's hash matches request password, authenticate by responding with JWTs
+      if(match) {
+        // Create new access token
+        const access_token = nanoid();
+        const data = await User.findOneAndUpdate({username: req.body.username}, {  $set: { access_token }  });
+
+        res.status(200).json({
+          message: "Successfully authenticated user.",
+          data: {
+            username: data.username,
+            access_token: data.access_token,
+            refresh_roken: data.refresh_token,
+          },
+        });
+      }
+      else {
+        res.status(400).json({
+          message: "Invalid password.",
+        });
+      }
+
+    } else {
+      res.status(400).json({
+        message: "Username does not exist.",
+      });
+
+      return;
+    }
+
     return;
   } catch (error) {
     res.status(500).json({
       message: "Authentication error on our end.",
       error,
     });
+
     return;
   }
 };
