@@ -19,8 +19,16 @@ const snapshotSchema = new Schema(
       type: String,
       required: true,
     },
-    tags: [{ type: String }],
-    contributors: [{ type: String }],
+    project: {
+      type: String,
+      required: true,
+    },
+    author: {
+      type: mongoose.ObjectId,
+      required: true,
+    },
+    categories: [{ type: String }],
+    contributors: [{ type: mongoose.ObjectId }],
   },
   {
     timestamps: true,
