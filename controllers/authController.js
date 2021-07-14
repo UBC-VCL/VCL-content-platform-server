@@ -125,6 +125,14 @@ export const loginUser = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param Expected request params:
+ *        {
+ *          refresh_token: string,
+ *        }
+ * @param Responds with access_token.
+ */
 export const refreshToken = async (req, res) => {
   try {
     const access_token = nanoid();
