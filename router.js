@@ -11,7 +11,8 @@ import {
 //AUTH controller imports
 import {
   createUser,
-  authenticateUser,
+  loginUser,
+  refreshToken,
 } from "./controllers/authController.js";
 
 const router = express.Router();
@@ -32,6 +33,9 @@ router.get("/api/snapshots/:id", getSnapshot);
 router.post("/api/users", createUser);
 
 // POST route for user authentication
-router.post("/api/users/auth", authenticateUser);
+router.post("/api/users/login", loginUser);
+
+// GET route for refreshing access token
+router.get("/api/tokens/refresh/:refresh_token", refreshToken);
 
 export default router;
