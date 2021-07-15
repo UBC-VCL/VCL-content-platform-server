@@ -1,4 +1,4 @@
-import Snapshot from '../models/snapshot.model.js';
+import Snapshot from "../models/snapshot.model.js";
 
 /**
  * 
@@ -8,8 +8,10 @@ import Snapshot from '../models/snapshot.model.js';
             description: String,
             imageURL: String,
             date: String,
-            tags: Array<String>,
-            contributors: Array<String>,
+            project: String
+            categories: Array<String>,
+            contributors: Array<ObjectId>,
+            author: ObjectId
           }
  *
  * @param Responds with created object.
@@ -20,7 +22,9 @@ export const createSnapshot = async (req, res) => {
     description: req.body.description,
     imageURL: req.body.imageURL,
     date: req.body.date,
-    tags: req.body.tags,
+    project: req.body.project,
+    author: req.body.author,
+    categories: req.body.categories,
     contributors: req.body.contributors,
   });
 
@@ -46,65 +50,64 @@ export const createSnapshot = async (req, res) => {
  */
 export const getAllSnapshots = async (req, res) => {
   Snapshot.find()
-  .exec()
-  .then((data) => {
-    res.status(200).json({
-      message: "Successfully retrieved all timeline snapshots",
-      data: data
+    .exec()
+    .then((data) => {
+      res.status(200).json({
+        message: "Successfully retrieved all timeline snapshots",
+        data: data,
+      });
+    })
+    .catch((err) => {
+      res.status(400).json({
+        message: "Error getting all timeline snapshots from MongoDB",
+        error: err,
+      });
     });
-  })
-  .catch((err) => {
-    res.status(400).json({
-      message: "Error getting all timeline snapshots from MongoDB",
-      error: err
-    });
-  });
-
-}
+};
 
 /**
- * 
+ *
  * @param Expected request body: None, request url parameter: id - ID of the timeline snapshot to delete
  * @param Responds with a message saying deleted if successful, along with the deleted object, or an error message if unsuccessful
  */
- export const deleteSnapshot = async (req, res) => {
+export const deleteSnapshot = async (req, res) => {
   let id = req.params.id;
   Snapshot.findByIdAndDelete(id)
-  .exec()
-  .then((data) => {
-    res.status(200).json({
-      message: "Successfully deleted timeline snapshot",
-      data: data
+    .exec()
+    .then((data) => {
+      res.status(200).json({
+        message: "Successfully deleted timeline snapshot",
+        data: data,
+      });
     })
-  })
-  .catch((err) => {
-    res.status(400).json({
-      message: "Error deleting timeline snapshot from MongoDB",
-      error: err
-    })
-  })
-}
+    .catch((err) => {
+      res.status(400).json({
+        message: "Error deleting timeline snapshot from MongoDB",
+        error: err,
+      });
+    });
+};
 
 /**
- * 
+ *
  * @param Expected request body: None, request url parameter: id - ID of the timeline snapshot to get
  * @param Responds with a message saying retrieved if successful, along with the retrieved object, or an error message if unsuccessful
  */
 
- export const getSnapshot = async (req, res) => {
-    let id = req.params.id;
-    Snapshot.findById(id)
+export const getSnapshot = async (req, res) => {
+  let id = req.params.id;
+  Snapshot.findById(id)
     .exec()
     .then((data) => {
-        res.status(200).json({
-            message: "Successfully retrieved timeline snapshot",
-            data: data
-        })
+      res.status(200).json({
+        message: "Successfully retrieved timeline snapshot",
+        data: data,
+      });
     })
     .catch((err) => {
-        res.status(400).json({
-            message: "Error retrieving timeline snapshot from MongoDB",
-            error: err
-        })
-    })
-}
+      res.status(400).json({
+        message: "Error retrieving timeline snapshot from MongoDB",
+        error: err,
+      });
+    });
+};
