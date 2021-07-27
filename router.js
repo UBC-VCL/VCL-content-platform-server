@@ -13,6 +13,7 @@ import {
   createUser,
   loginUser,
   refreshToken,
+  getUsers,
 } from "./controllers/authController.js";
 
 const router = express.Router();
@@ -31,6 +32,9 @@ router.get("/api/snapshots/:id", getSnapshot);
 
 // POST route for creating user
 router.post("/api/users", createUser);
+
+// GET route for getting users
+router.get("/api/users/:access_token", getUsers);
 
 // POST route for user authentication
 router.post("/api/users/login", loginUser);

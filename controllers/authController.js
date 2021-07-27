@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
+import { checkAccessToken } from '../helpers/authHelper.js';
 
 /**
  *
@@ -57,7 +58,39 @@ export const createUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {};
 
-export const getUsers = async (req, res) => {};
+/**
+ *
+ * @param Expected request params:
+ *        {
+ *          access_token: string,
+ *        }
+ * @param Responds with array of users.
+ */
+export const getUsers = async (req, res) => {
+  try {
+    const access = await checkAccessToken(req.params.access_token);
+
+    if (access.userPermissions !== 'admin') {
+      res.status(400).json({
+        message: 'Invalid access.',
+      });
+
+      return;
+    } else {
+      const users = await User.find();
+
+      res.status(200).json({
+        message: 'Successfully retrieved users.',
+        data: users,
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error.',
+      error,
+    });
+  }
+};
 
 /**
  *
