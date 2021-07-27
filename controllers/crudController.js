@@ -8,8 +8,10 @@ import Snapshot from "../models/snapshot.model.js";
             description: String,
             imageURL: String,
             date: String,
-            tags: Array<String>,
-            contributors: Array<String>,
+            project: String
+            categories: Array<String>,
+            contributors: Array<ObjectId>,
+            author: ObjectId
           }
  *
  * @param Responds with created object.
@@ -20,7 +22,9 @@ export const createSnapshot = async (req, res) => {
     description: req.body.description,
     imageURL: req.body.imageURL,
     date: req.body.date,
-    tags: req.body.tags,
+    project: req.body.project,
+    author: req.body.author,
+    categories: req.body.categories,
     contributors: req.body.contributors,
   });
 
