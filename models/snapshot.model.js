@@ -36,5 +36,6 @@ const snapshotSchema = new Schema(
   }
 );
 
+mongoose.set('useFindAndModify', false);
 const Snapshot = mongoose.model("Snapshot", snapshotSchema);
 export default Snapshot;

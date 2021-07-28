@@ -56,19 +56,60 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {};
-
 /**
  *
- * @param Expected request params:
+ * @param Expected request body:
  *        {
- *          access_token: string,
+ *          username: string,
+ *        }
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with status code and messsage.
+ */
+export const deleteUser = async (req, res) => {
+  try {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== 'admin') {
+      res.status(400).json({
+        message: 'Invalid access.',
+      });
+
+      return;
+    } else {
+      const response = await User.deleteOne({
+        username: req.params.username,
+      });
+
+      res.status(200).json({
+        message: `Successfully deleted ${response.n} user(s).`,
+      });
+
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error.',
+      error: err,
+    });
+
+    return;
+  }
+};
+
+/**
+ * Requires Admin user access
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
  *        }
  * @param Responds with array of users.
  */
 export const getUsers = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.params.access_token);
+    const access = await checkAccessToken(req.headers.authorization);
 
     if (access.userPermissions !== 'admin') {
       res.status(400).json({
@@ -83,12 +124,16 @@ export const getUsers = async (req, res) => {
         message: 'Successfully retrieved users.',
         data: users,
       });
+
+      return;
     }
   } catch (err) {
     res.status(500).json({
       message: 'Internal server error.',
       error,
     });
+
+    return;
   }
 };
 
@@ -130,7 +175,7 @@ export const loginUser = async (req, res) => {
           message: 'Successfully authenticated user.',
           data: {
             username: data.username,
-            access_token: data.access_token,
+            access_token: access_token,
             refresh_roken: data.refresh_token,
           },
         });
@@ -160,9 +205,9 @@ export const loginUser = async (req, res) => {
 
 /**
  *
- * @param Expected request params:
+ * @param Expected HEADER:
  *        {
- *          refresh_token: string,
+ *          authorization: string,
  *        }
  * @param Responds with access_token.
  */
@@ -172,7 +217,7 @@ export const refreshToken = async (req, res) => {
 
     const user = await User.findOneAndUpdate(
       {
-        refresh_token: req.params.refresh_token,
+        refresh_token: req.headers.authorization,
       },
       {
         access_token,

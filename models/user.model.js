@@ -33,5 +33,6 @@ const userSchema = new Schema(
   }
 );
 
+mongoose.set('useFindAndModify', false);
 const User = mongoose.model("User", userSchema);
 export default User;
