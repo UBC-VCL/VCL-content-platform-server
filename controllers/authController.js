@@ -1,6 +1,7 @@
-import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
-import User from "../models/user.model.js";
+import bcrypt from 'bcrypt';
+import { nanoid } from 'nanoid';
+import User from '../models/user.model.js';
+import { checkAccessToken } from '../helpers/authHelper.js';
 
 /**
  *
@@ -16,7 +17,7 @@ export const createUser = async (req, res) => {
   try {
     if (!(req.body.username && req.body.password && req.body.permissions)) {
       res.status(400).json({
-        message: "Invalid request body.",
+        message: 'Invalid request body.',
       });
       return;
     }
@@ -40,14 +41,14 @@ export const createUser = async (req, res) => {
     const data = await newUser.save();
 
     res.status(200).json({
-      message: "Successfully created user.",
+      message: 'Successfully created user.',
       data,
     });
 
     return;
   } catch (error) {
     res.status(400).json({
-      message: "Failed to create user.",
+      message: 'Failed to create user.',
       error,
     });
 
@@ -55,15 +56,101 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {};
+/**
+ *
+ * @param Expected request body:
+ *        {
+ *          username: string,
+ *        }
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with status code and messsage.
+ */
+export const deleteUser = async (req, res) => {
+  try {
+    const access = await checkAccessToken(req.headers.authorization);
 
-export const getUsers = async (req, res) => {};
+    if (access.userPermissions !== 'admin') {
+      res.status(400).json({
+        message: 'Invalid access.',
+      });
 
-export const authenticateUser = async (req, res) => {
+      return;
+    } else {
+      const response = await User.deleteOne({
+        username: req.params.username,
+      });
+
+      res.status(200).json({
+        message: `Successfully deleted ${response.n} user(s).`,
+      });
+
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error.',
+      error: err,
+    });
+
+    return;
+  }
+};
+
+/**
+ * Requires Admin user access
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with array of users.
+ */
+export const getUsers = async (req, res) => {
+  try {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== 'admin') {
+      res.status(400).json({
+        message: 'Invalid access.',
+      });
+
+      return;
+    } else {
+      const users = await User.find();
+
+      res.status(200).json({
+        message: 'Successfully retrieved users.',
+        data: users,
+      });
+
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error.',
+      error,
+    });
+
+    return;
+  }
+};
+
+/**
+ *
+ * @param Expected request body:
+ *        {
+ *          username: string,
+ *          password: string,
+ *        }
+ * @param Responds with JWTs.
+ */
+export const loginUser = async (req, res) => {
   try {
     if (!(req.body.username && req.body.password)) {
       res.status(400).json({
-        message: "Invalid request body.",
+        message: 'Invalid request body.',
       });
       return;
     }
@@ -74,31 +161,32 @@ export const authenticateUser = async (req, res) => {
 
     if (user) {
       const match = await bcrypt.compare(req.body.password, user.hash);
-      
+
       // If user's hash matches request password, authenticate by responding with JWTs
-      if(match) {
+      if (match) {
         // Create new access token
         const access_token = nanoid();
-        const data = await User.findOneAndUpdate({username: req.body.username}, {  $set: { access_token }  });
+        const data = await User.findOneAndUpdate(
+          { username: req.body.username },
+          { $set: { access_token } }
+        );
 
         res.status(200).json({
-          message: "Successfully authenticated user.",
+          message: 'Successfully authenticated user.',
           data: {
             username: data.username,
-            access_token: data.access_token,
+            access_token: access_token,
             refresh_roken: data.refresh_token,
           },
         });
-      }
-      else {
+      } else {
         res.status(400).json({
-          message: "Invalid password.",
+          message: 'Invalid password.',
         });
       }
-
     } else {
       res.status(400).json({
-        message: "Username does not exist.",
+        message: 'Username does not exist.',
       });
 
       return;
@@ -107,11 +195,52 @@ export const authenticateUser = async (req, res) => {
     return;
   } catch (error) {
     res.status(500).json({
-      message: "Authentication error on our end.",
+      message: 'Authentication error on our end.',
       error,
     });
 
     return;
+  }
+};
+
+/**
+ *
+ * @param Expected HEADER:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with access_token.
+ */
+export const refreshToken = async (req, res) => {
+  try {
+    const access_token = nanoid();
+
+    const user = await User.findOneAndUpdate(
+      {
+        refresh_token: req.headers.authorization,
+      },
+      {
+        access_token,
+      }
+    );
+
+    if (user) {
+      res.status(200).json({
+        message: 'Successfully refreshed token.',
+        data: {
+          access_token,
+        },
+      });
+    } else {
+      res.status(400).json({
+        message: 'Invalid refresh token.',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Server error on our end.',
+      error,
+    });
   }
 };
 

@@ -11,7 +11,10 @@ import {
 //AUTH controller imports
 import {
   createUser,
-  authenticateUser,
+  loginUser,
+  refreshToken,
+  getUsers,
+  deleteUser,
 } from "./controllers/authController.js";
 
 const router = express.Router();
@@ -31,7 +34,16 @@ router.get("/api/snapshots/:id", getSnapshot);
 // POST route for creating user
 router.post("/api/users", createUser);
 
+// GET route for getting users
+router.get("/api/users", getUsers);
+
+// DELETE route for deleting user by username
+router.delete("/api/users/:username", deleteUser);
+
 // POST route for user authentication
-router.post("/api/users/auth", authenticateUser);
+router.post("/api/users/login", loginUser);
+
+// GET route for refreshing access token
+router.get("/api/tokens/access_token", refreshToken);
 
 export default router;
