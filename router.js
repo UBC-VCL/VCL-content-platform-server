@@ -6,6 +6,7 @@ import {
   getAllSnapshots,
   deleteSnapshot,
   getSnapshot,
+  getSnapshots
 } from "./controllers/crudController.js";
 
 //AUTH controller imports
@@ -22,14 +23,17 @@ const router = express.Router();
 //Define POST route for creating timeline snapshot
 router.post("/api/snapshots", createSnapshot);
 
-// Define GET route for getting all timeline snapshots
-router.get("/api/snapshots", getAllSnapshots);
+// Define GET route for getting all timeline snapshots [FOR INTERNAL USE ONLY]
+router.get("/api/allsnapshots", getAllSnapshots);
 
-// Define DEL route for deleting a snapshot given the ID
-router.delete("/api/snapshots/:id", deleteSnapshot);
+// Define GET route for getting a range of timeline snapshots
+router.get("/api/snapshots", getSnapshots);
 
 // Define GET route for getting a snapshot given the ID
 router.get("/api/snapshots/:id", getSnapshot);
+
+// Define DEL route for deleting a snapshot given the ID
+router.delete("/api/snapshots/:id", deleteSnapshot);
 
 // POST route for creating user
 router.post("/api/users", createUser);
