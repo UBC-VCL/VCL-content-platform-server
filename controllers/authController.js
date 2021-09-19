@@ -144,7 +144,7 @@ export const getUsers = async (req, res) => {
  *          username: string,
  *          password: string,
  *        }
- * @param Responds with JWTs.
+ * @param Responds with JWTs, username, and permissions.
  */
 export const loginUser = async (req, res) => {
   try {
@@ -177,6 +177,7 @@ export const loginUser = async (req, res) => {
             username: data.username,
             access_token: access_token,
             refresh_token: data.refresh_token,
+            permissions: data.permissions,
           },
         });
       } else {
