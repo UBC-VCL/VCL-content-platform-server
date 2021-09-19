@@ -176,7 +176,7 @@ export const loginUser = async (req, res) => {
           data: {
             username: data.username,
             access_token: access_token,
-            refresh_roken: data.refresh_token,
+            refresh_token: data.refresh_token,
           },
         });
       } else {
