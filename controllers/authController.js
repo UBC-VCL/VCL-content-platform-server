@@ -164,11 +164,13 @@ export const loginUser = async (req, res) => {
 
       // If user's hash matches request password, authenticate by responding with JWTs
       if (match) {
-        // Create new access token
+        // Create new access token and refresh token
         const access_token = nanoid();
+        const refresh_token = nanoid();
+
         const data = await User.findOneAndUpdate(
           { username: req.body.username },
-          { $set: { access_token } }
+          { $set: { access_token, refresh_token } }
         );
 
         res.status(200).json({
@@ -176,7 +178,7 @@ export const loginUser = async (req, res) => {
           data: {
             username: data.username,
             access_token: access_token,
-            refresh_token: data.refresh_token,
+            refresh_token: refresh_token,
             permissions: data.permissions,
           },
         });
