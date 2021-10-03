@@ -246,8 +246,43 @@ export const refreshToken = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param Expected HEADER:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with success/error message.
+ */
 export const logoutUser = async (req, res) => {
+  try {
+    const access = await checkAccessToken(req.headers.authorization);
 
+    if (access.isValidToken) {
+      const refresh_token = nanoid();
+      const access_token = nanoid();
+
+      const data = await User.findOneAndUpdate(
+        { access_token: req.headers.authorization },
+        { $set: { access_token, refresh_token } }
+      );
+
+      if (data) {
+        res.status(200).json({
+          message: 'Successfully logged out user.',
+        });
+      }
+    } else {
+      res.status(400).json({
+        message: 'Invalid access.',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Server error on our end.',
+      error,
+    });
+  }
 };
 
 export const changeUsername = async (req, res) => {};

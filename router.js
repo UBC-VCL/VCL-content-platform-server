@@ -15,6 +15,7 @@ import {
   refreshToken,
   getUsers,
   deleteUser,
+  logoutUser,
 } from "./controllers/authController.js";
 
 const router = express.Router();
@@ -42,6 +43,9 @@ router.delete("/api/users/:username", deleteUser);
 
 // POST route for user authentication
 router.post("/api/users/login", loginUser);
+
+// POST route for user logout
+router.post('/api/users/logout', logoutUser);
 
 // GET route for refreshing access token
 router.get("/api/tokens/access_token", refreshToken);
