@@ -85,6 +85,7 @@ export const deleteUser = async (req, res) => {
 
       res.status(200).json({
         message: `Successfully deleted ${response.n} user(s).`,
+        data: true,
       });
 
       return;
@@ -270,6 +271,7 @@ export const logoutUser = async (req, res) => {
       if (data) {
         res.status(200).json({
           message: 'Successfully logged out user.',
+          data: true,
         });
       }
     } else {
