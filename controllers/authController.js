@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
 import { hasPermissions } from '../helpers/authHelper.js';
 import { USER_TYPES } from '../helpers/types.js';
+import AUTH_ERR from '../errors/authErrors.js';
 
 /**
  *
@@ -48,9 +49,10 @@ export const createUser = async (req, res) => {
 
     return;
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: 'Failed to create user.',
       error,
+      errCode: AUTH_ERR.AUTH001
     });
 
     return;
@@ -93,6 +95,7 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to delete user',
       error: err,
+      errCode: AUTH_ERR.AUTH002
     });
 
     return;
@@ -129,6 +132,7 @@ export const getUsers = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to retrieve users',
       error,
+      errCode: AUTH_ERR.AUTH003
     });
 
     return;
@@ -197,6 +201,7 @@ export const loginUser = async (req, res) => {
     res.status(500).json({
       message: 'Authentication error on our end.',
       error,
+      errCode: AUTH_ERR.AUTH004
     });
 
     return;
@@ -240,6 +245,7 @@ export const refreshToken = async (req, res) => {
     res.status(500).json({
       message: 'Server error on our end.',
       error,
+      errCode: AUTH_ERR.AUTH005
     });
   }
 };
@@ -278,6 +284,7 @@ export const logoutUser = async (req, res) => {
     res.status(500).json({
       message: 'Server error while attempting to logout user',
       error,
+      errCode: AUTH_ERR.AUTH006
     });
   }
 };
