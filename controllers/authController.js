@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
-import { checkAccessToken } from '../helpers/authHelper.js';
+import { hasPermissions } from '../helpers/authHelper.js';
+import { USER_TYPES } from '../helpers/types.js';
 
 /**
  *
@@ -70,11 +71,9 @@ export const createUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
-
-    if (access.userPermissions !== 'admin') {
+    if (!hasPermissions(req, USER_TYPES.ADMIN)) {
       res.status(400).json({
-        message: 'Invalid access.',
+        message: 'Invalid access - only admins can delete users',
       });
 
       return;
@@ -92,7 +91,7 @@ export const deleteUser = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      message: 'Internal server error.',
+      message: 'Internal server error while attempting to delete user',
       error: err,
     });
 
@@ -110,11 +109,9 @@ export const deleteUser = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
-
-    if (access.userPermissions !== 'admin') {
+    if (!hasPermissions(req, USER_TYPES.ADMIN)) {
       res.status(400).json({
-        message: 'Invalid access.',
+        message: 'Invalid access - only an admin can access all users',
       });
 
       return;
@@ -130,7 +127,7 @@ export const getUsers = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      message: 'Internal server error.',
+      message: 'Internal server error while attempting to retrieve users',
       error,
     });
 
@@ -257,9 +254,11 @@ export const refreshToken = async (req, res) => {
  */
 export const logoutUser = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
-
-    if (access.isValidToken) {
+    if (!hasPermissions(req, USER_TYPES.USER)) {
+      res.status(400).json({
+        message: 'Invalid access - user must be logged in to log out',
+      });
+    } else {
       const refresh_token = nanoid();
       const access_token = nanoid();
 
@@ -274,14 +273,10 @@ export const logoutUser = async (req, res) => {
           data: true,
         });
       }
-    } else {
-      res.status(400).json({
-        message: 'Invalid access.',
-      });
     }
   } catch (error) {
     res.status(500).json({
-      message: 'Server error on our end.',
+      message: 'Server error while attempting to logout user',
       error,
     });
   }

@@ -1,4 +1,4 @@
-import { checkAccessToken, hasPermissions } from "../helpers/authHelper.js";
+import { hasPermissions } from "../helpers/authHelper.js";
 import { USER_TYPES } from "../helpers/types.js";
 import Snapshot from "../models/snapshot.model.js";
 
