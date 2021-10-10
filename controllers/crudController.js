@@ -1,3 +1,5 @@
+import { checkAccessToken, hasPermissions } from "../helpers/authHelper.js";
+import { USER_TYPES } from "../helpers/types.js";
 import Snapshot from "../models/snapshot.model.js";
 
 /**
@@ -13,35 +15,58 @@ import Snapshot from "../models/snapshot.model.js";
             contributors: Array<ObjectId>,
             author: ObjectId
           }
+   @param Expected HEADERS:
+          {
+            authorization: string
+          }
  *
  * @param Responds with created object.
  */
 export const createSnapshot = async (req, res) => {
-  const newSnapshot = new Snapshot({
-    title: req.body.title,
-    description: req.body.description,
-    imageURL: req.body.imageURL,
-    date: req.body.date,
-    project: req.body.project,
-    author: req.body.author,
-    categories: req.body.categories,
-    contributors: req.body.contributors,
-  });
-
-  newSnapshot
-    .save()
-    .then((data) => {
-      res.status(200).json({
-        message: "Successfully created timeline snapshot.",
-        data: data,
-      });
-    })
-    .catch((err) => {
+  try {
+    if (!hasPermissions(req, USER_TYPES.USER)) {
       res.status(400).json({
-        message: "Error saving timeline snapshot to MongoDB",
-        error: err,
+        message: 'Invalid access - must be a user to create a snapshot'
       });
+      return;
+
+    } else {
+      const newSnapshot = new Snapshot({
+        title: req.body.title,
+        description: req.body.description,
+        imageURL: req.body.imageURL,
+        date: req.body.date,
+        project: req.body.project,
+        author: req.body.author,
+        categories: req.body.categories,
+        contributors: req.body.contributors,
+      });
+
+      newSnapshot
+        .save()
+        .then((data) => {
+          res.status(200).json({
+            message: "Successfully created timeline snapshot.",
+            data: data,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({
+            message: "Error saving timeline snapshot to MongoDB",
+            error: err,
+          });
+        });
+      
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error while attempting to create snapshot',
+      error: err
     });
+
+    return;
+  }
 };
 
 /**
@@ -71,21 +96,33 @@ export const getAllSnapshots = async (req, res) => {
  * @param Responds with a message saying deleted if successful, along with the deleted object, or an error message if unsuccessful
  */
 export const deleteSnapshot = async (req, res) => {
-  let id = req.params.id;
-  Snapshot.findByIdAndDelete(id)
-    .exec()
-    .then((data) => {
-      res.status(200).json({
-        message: "Successfully deleted timeline snapshot",
-        data: data,
-      });
-    })
-    .catch((err) => {
+  try {
+    if (!hasPermissions(req, USER_TYPES.USER)) {
       res.status(400).json({
-        message: "Error deleting timeline snapshot from MongoDB",
-        error: err,
+        message: 'Invalid access - must be a user to delete a snapshot'
       });
+    } else {
+      Snapshot.findByIdAndDelete(req.params.id)
+        .exec()
+        .then((data) => {
+          res.status(200).json({
+            message: "Successfully deleted timeline snapshot",
+            data: data,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({
+            message: "Error deleting timeline snapshot from MongoDB",
+            error: err,
+          });
+        });
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: 'Internal server error while attempting to delete snapshot',
+      error: err
     });
+  }
 };
 
 /**
