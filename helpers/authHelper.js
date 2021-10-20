@@ -24,22 +24,15 @@ export const checkAccessToken = async (access_token) => {
 };
 
 /**
- * Checks whether a given access token matches the specified permissions
- * @param {string} req - post request - must have authorization header!!
- * @param {USER_TYPES} userType - type of user to validate for
- * @returns true if the access token matches the given permissions for userType.
- *     e.g. if checking hasPermissions(token, USER_TYPES.ADMIN), this function will
- *          return true if the currently logged-in user is an admin
+ * Helper functions to check if a user has member or admin privileges based on their access token.
+ * @param authHeader - the access token to check (likely from req.headers.authorization)
  */
-export const hasPermissions = async (req, userType) => {
-  const access = await checkAccessToken(req.headers.authorization);
+export const isMember = async (authHeader) => {
+  const access = await checkAccessToken(authHeader);
+  return access.isValidToken;
+}
 
-  switch (userType) {
-    case USER_TYPES.USER:
-      return access.isValidToken;
-    case USER_TYPES.ADMIN:
-      return access.isValidToken && (user.permissions === "admin");
-    default:
-      return false;
-  }
+export const isAdmin = async (authHeader) => {
+  const access = await checkAccessToken(authHeader);
+  return access.isValidToken && user.permissions === USER_TYPES.ADMIN;
 }

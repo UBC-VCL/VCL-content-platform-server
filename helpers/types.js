@@ -1,4 +1,4 @@
-export const USER_TYPES = {
-  USER: 'USER',
-  ADMIN: 'ADMIN'
-}
+const USER_TYPES = {
+  MEMBER: "member",
+  ADMIN: "admin",
+};
