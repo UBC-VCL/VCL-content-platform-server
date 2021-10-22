@@ -1,5 +1,5 @@
 import CRUD_ERR from "../errors/crudErrors.js";
-import { hasPermissions } from "../helpers/authHelper.js";
+import { checkAccessToken } from "../helpers/authHelper.js";
 import { USER_TYPES } from "../helpers/types.js";
 import Snapshot from "../models/snapshot.model.js";
 
@@ -25,9 +25,11 @@ import Snapshot from "../models/snapshot.model.js";
  */
 export const createSnapshot = async (req, res) => {
   try {
-    if (!hasPermissions(req, USER_TYPES.USER)) {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== USER_TYPES.MEMBER) {
       res.status(400).json({
-        message: 'Invalid access - must be a user to create a snapshot'
+        message: 'Invalid access - must be a member to create a snapshot'
       });
       return;
 
@@ -100,7 +102,9 @@ export const getAllSnapshots = async (req, res) => {
  */
 export const deleteSnapshot = async (req, res) => {
   try {
-    if (!hasPermissions(req, USER_TYPES.USER)) {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== USER_TYPES.MEMBER) {
       res.status(400).json({
         message: 'Invalid access - must be a user to delete a snapshot'
       });

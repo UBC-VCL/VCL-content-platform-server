@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
-import { isAdmin, isMember } from '../helpers/authHelper.js';
+import { checkAccessToken } from '../helpers/authHelper.js';
 import AUTH_ERR from '../errors/authErrors.js';
+import { USER_TYPES } from '../helpers/types.js';
 
 /**
  *
@@ -72,7 +73,9 @@ export const createUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    if (!isAdmin(req.headers.authorization)) {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== USER_TYPES.ADMIN) {
       res.status(400).json({
         message: 'Invalid access - only admins can delete users',
       });
@@ -111,7 +114,9 @@ export const deleteUser = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    if (!isAdmin(req.headers.authorization)) {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== USER_TYPES.ADMIN) {
       res.status(400).json({
         message: 'Invalid access - only an admin can access all users',
       });
@@ -259,7 +264,9 @@ export const refreshToken = async (req, res) => {
  */
 export const logoutUser = async (req, res) => {
   try {
-    if (!isMember(req.headers.authorization)) {
+    const access = await checkAccessToken(req.headers.authorization);
+
+    if (access.userPermissions !== USER_TYPES.MEMBER) {
       res.status(400).json({
         message: 'Invalid access - user must be logged in to log out',
       });

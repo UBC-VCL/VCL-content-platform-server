@@ -1,4 +1,4 @@
-const USER_TYPES = {
+export const USER_TYPES = {
   MEMBER: "member",
   ADMIN: "admin",
 };
