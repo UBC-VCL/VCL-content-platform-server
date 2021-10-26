@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
 import { checkAccessToken } from '../helpers/authHelper.js';
+import AUTH_ERR from '../errors/authErrors.js';
+import { USER_TYPES } from '../helpers/types.js';
 
 /**
  *
@@ -47,9 +49,10 @@ export const createUser = async (req, res) => {
 
     return;
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: 'Failed to create user.',
       error,
+      errCode: AUTH_ERR.AUTH001
     });
 
     return;
@@ -72,9 +75,9 @@ export const deleteUser = async (req, res) => {
   try {
     const access = await checkAccessToken(req.headers.authorization);
 
-    if (access.userPermissions !== 'admin') {
+    if (access.userPermissions !== USER_TYPES.ADMIN) {
       res.status(400).json({
-        message: 'Invalid access.',
+        message: 'Invalid access - only admins can delete users',
       });
 
       return;
@@ -92,8 +95,9 @@ export const deleteUser = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      message: 'Internal server error.',
+      message: 'Internal server error while attempting to delete user',
       error: err,
+      errCode: AUTH_ERR.AUTH002
     });
 
     return;
@@ -112,9 +116,9 @@ export const getUsers = async (req, res) => {
   try {
     const access = await checkAccessToken(req.headers.authorization);
 
-    if (access.userPermissions !== 'admin') {
+    if (access.userPermissions !== USER_TYPES.ADMIN) {
       res.status(400).json({
-        message: 'Invalid access.',
+        message: 'Invalid access - only an admin can access all users',
       });
 
       return;
@@ -130,8 +134,9 @@ export const getUsers = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      message: 'Internal server error.',
+      message: 'Internal server error while attempting to retrieve users',
       error,
+      errCode: AUTH_ERR.AUTH003
     });
 
     return;
@@ -200,6 +205,7 @@ export const loginUser = async (req, res) => {
     res.status(500).json({
       message: 'Authentication error on our end.',
       error,
+      errCode: AUTH_ERR.AUTH004
     });
 
     return;
@@ -243,6 +249,7 @@ export const refreshToken = async (req, res) => {
     res.status(500).json({
       message: 'Server error on our end.',
       error,
+      errCode: AUTH_ERR.AUTH005
     });
   }
 };
@@ -259,7 +266,11 @@ export const logoutUser = async (req, res) => {
   try {
     const access = await checkAccessToken(req.headers.authorization);
 
-    if (access.isValidToken) {
+    if (access.userPermissions !== USER_TYPES.MEMBER) {
+      res.status(400).json({
+        message: 'Invalid access - user must be logged in to log out',
+      });
+    } else {
       const refresh_token = nanoid();
       const access_token = nanoid();
 
@@ -274,15 +285,12 @@ export const logoutUser = async (req, res) => {
           data: true,
         });
       }
-    } else {
-      res.status(400).json({
-        message: 'Invalid access.',
-      });
     }
   } catch (error) {
     res.status(500).json({
-      message: 'Server error on our end.',
+      message: 'Server error while attempting to logout user',
       error,
+      errCode: AUTH_ERR.AUTH006
     });
   }
 };
