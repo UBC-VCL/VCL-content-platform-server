@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 
 //CRUD controller imports
 import {
@@ -7,6 +7,15 @@ import {
   deleteSnapshot,
   getSnapshot,
 } from "./controllers/crudController.js";
+
+// Project controller imports
+import {
+  createProject,
+  getProject,
+  getProjects,
+  updateProject,
+  deleteProject,
+} from "./controllers/projectController.js";
 
 //AUTH controller imports
 import {
@@ -20,34 +29,33 @@ import {
 
 const router = express.Router();
 
-//Define POST route for creating timeline snapshot
+/**
+ * SNAPSHOT ENDPOINTS
+ */
+
 router.post("/api/snapshots", createSnapshot);
-
-// Define GET route for getting all timeline snapshots
 router.get("/api/snapshots", getAllSnapshots);
-
-// Define DEL route for deleting a snapshot given the ID
 router.delete("/api/snapshots/:id", deleteSnapshot);
-
-// Define GET route for getting a snapshot given the ID
 router.get("/api/snapshots/:id", getSnapshot);
 
-// POST route for creating user
+/**
+ * PROJECT ENDPOINTS
+ */
+router.post("/api/projects", createProject);
+router.get("/api/projects", getProjects);
+router.get("/api/projects/:id", getProject);
+router.put("/api/projects/:id", updateProject);
+router.delete("/api/projects/:id", deleteProject);
+
+
+/**
+ * AUTHENTICATION ENDPOINTS
+ */
 router.post("/api/users", createUser);
-
-// GET route for getting users
 router.get("/api/users", getUsers);
-
-// DELETE route for deleting user by username
 router.delete("/api/users/:username", deleteUser);
-
-// POST route for user authentication
 router.post("/api/users/login", loginUser);
-
-// POST route for user logout
-router.post('/api/users/logout', logoutUser);
-
-// GET route for refreshing access token
+router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
 
 export default router;
