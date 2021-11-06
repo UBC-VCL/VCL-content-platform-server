@@ -1,4 +1,4 @@
-import CRUD_ERR from "../errors/crudErrors.js";
+import SNAPSHOT_ERR from "../errors/snapshotErrors.js";
 import { checkAccessToken } from "../helpers/authHelper.js";
 import { USER_TYPES } from "../helpers/types.js";
 import Snapshot from "../models/snapshot.model.js";
@@ -66,7 +66,7 @@ export const createSnapshot = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to create snapshot',
       error: err,
-      errCode: CRUD_ERR.CRUD001
+      errCode: SNAPSHOT_ERR.SNAPSHOT001
     });
 
     return;
@@ -90,7 +90,7 @@ export const getAllSnapshots = async (req, res) => {
       res.status(500).json({
         message: "Error getting all timeline snapshots from MongoDB",
         error: err,
-        errCode: CRUD_ERR.CRUD002
+        errCode: SNAPSHOT_ERR.SNAPSHOT002
       });
     });
 };
@@ -128,7 +128,7 @@ export const deleteSnapshot = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to delete snapshot',
       error: err,
-      errCode: CRUD_ERR.CRUD003
+      errCode: SNAPSHOT_ERR.SNAPSHOT003
     });
   }
 };
@@ -153,7 +153,7 @@ export const getSnapshot = async (req, res) => {
       res.status(500).json({
         message: "Error retrieving timeline snapshot from MongoDB",
         error: err,
-        errCode: CRUD_ERR.CRUD004
+        errCode: SNAPSHOT_ERR.SNAPSHOT004
       });
     });
 };

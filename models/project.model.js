@@ -7,7 +7,7 @@ const projectSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true, // does it need to be?
+    unique: true,
   },
   description: {
     type: String,
@@ -18,4 +18,7 @@ const projectSchema = new Schema({
       ref: "User",
     },
   ],
+  isActive: {
+    type: Boolean
+  }
 });

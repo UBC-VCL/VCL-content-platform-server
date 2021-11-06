@@ -1,12 +1,12 @@
 import express from "express";
 
-//CRUD controller imports
+//Snapshot controller imports
 import {
   createSnapshot,
   getAllSnapshots,
   deleteSnapshot,
   getSnapshot,
-} from "./controllers/crudController.js";
+} from "./controllers/snapshotController.js";
 
 // Project controller imports
 import {
@@ -32,7 +32,6 @@ const router = express.Router();
 /**
  * SNAPSHOT ENDPOINTS
  */
-
 router.post("/api/snapshots", createSnapshot);
 router.get("/api/snapshots", getAllSnapshots);
 router.delete("/api/snapshots/:id", deleteSnapshot);
@@ -46,7 +45,6 @@ router.get("/api/projects", getProjects);
 router.get("/api/projects/:id", getProject);
 router.put("/api/projects/:id", updateProject);
 router.delete("/api/projects/:id", deleteProject);
-
 
 /**
  * AUTHENTICATION ENDPOINTS
