@@ -22,3 +22,7 @@ const projectSchema = new Schema({
     type: Boolean
   }
 });
+
+mongoose.set("useFindAndModify", false);
+const Project = mongoose.model("Project", projectSchema);
+export default Project;
