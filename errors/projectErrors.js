@@ -7,7 +7,8 @@
  */
 
 const PROJECT_ERR = {
-    PROJECT001: "PROJECT001"
+    PROJECT001: "PROJECT001",
+    PROJECT002: "PROJECT002"
 };
   
 Object.freeze(PROJECT_ERR);

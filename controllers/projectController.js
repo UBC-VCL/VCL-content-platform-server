@@ -3,6 +3,9 @@ import { checkAccessToken } from "../helpers/authHelper";
 import { USER_TYPES } from "../helpers/types";
 import Project from "../models/project.model";
 
+/**
+ * Create a new Project
+ */
 export const createProject = async (req, res) => {
   try {
     const access = await checkAccessToken(req.headers.authorization);
@@ -41,9 +44,33 @@ export const createProject = async (req, res) => {
   }
 };
 
-export const getProjects = () => {};
+/**
+ * Get all Projects
+ */
+export const getProjects = async (req, res) => {
+  Project.find()
+    .exec()
+    .then(data => {
+      res.status(200).json({
+        message: "Successfully retrieved all Projects",
+        data
+      })
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: "Error while getting all Projects from MongoDB",
+        error,
+        errCode: PROJECT_ERR.PROJECT002
+      })
+    })
+};
 
-export const getProject = () => {};
+/**
+ * Get a single Project, identified by name
+ */
+export const getProject = (req, res) => {
+  
+};
 
 export const updateProject = () => {};
 
