@@ -1,7 +1,7 @@
-import PROJECT_ERR from "../errors/projectErrors";
-import { checkAccessToken } from "../helpers/authHelper";
-import { USER_TYPES } from "../helpers/types";
-import Project from "../models/project.model";
+import PROJECT_ERR from "../errors/projectErrors.js";
+import { checkAccessToken } from "../helpers/authHelper.js";
+import { USER_TYPES } from "../helpers/types.js";
+import Project from "../models/project.model.js";
 
 /**
  * Create a new Project
@@ -39,8 +39,8 @@ export const createProject = async (req, res) => {
     res.status(500).json({
       message: "Internal server error while attempting to create project",
       errCode: PROJECT_ERR.PROJECT001,
-      error
-    })
+      error,
+    });
   }
 };
 
@@ -50,27 +50,25 @@ export const createProject = async (req, res) => {
 export const getProjects = async (req, res) => {
   Project.find()
     .exec()
-    .then(data => {
+    .then((data) => {
       res.status(200).json({
         message: "Successfully retrieved all Projects",
-        data
-      })
+        data,
+      });
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(500).json({
         message: "Error while getting all Projects from MongoDB",
         error,
-        errCode: PROJECT_ERR.PROJECT002
-      })
-    })
+        errCode: PROJECT_ERR.PROJECT002,
+      });
+    });
 };
 
 /**
  * Get a single Project, identified by name
  */
-export const getProject = (req, res) => {
-  
-};
+export const getProject = (req, res) => {};
 
 export const updateProject = () => {};
 
