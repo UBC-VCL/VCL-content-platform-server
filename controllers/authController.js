@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
+import * as yup from 'yup';
 import User from '../models/user.model.js';
 import { checkAccessToken } from '../helpers/authHelper.js';
 import AUTH_ERR from '../errors/authErrors.js';
@@ -17,13 +18,36 @@ import { USER_TYPES } from '../helpers/types.js';
  */
 export const createUser = async (req, res) => {
   try {
-    if (!(req.body.username && req.body.password && req.body.permissions)) {
-      res.status(400).json({
-        message: 'Invalid request body.',
-      });
-      return;
-    }
+    const schema = yup.object().shape({
+      username: yup
+        .string()
+        .min(4, 'Minimum username length is 4')
+        .required('Username is required'),
+      password: yup
+        .string()
+        .min(8, 'Minimum password length is 8')
+        .required('Password is required'),
+      permissions: yup
+        .string()
+        .test(
+          'isValidPermission',
+          'Please provide a valid user permission level',
+          (permission) => Object.values(USER_TYPES).includes(permission)
+        ),
+    });
 
+    await schema.validate(req.body);
+  } catch (err) {
+    res.status(400).json({
+      message: `Request error: ${err?.errors.join(', ')}`,
+      error: err,
+      errCode: AUTH_ERR.AUTH007,
+    });
+
+    return;
+  }
+
+  try {
     // Generate 21 length tokens
     const access_token = nanoid();
     const refresh_token = nanoid();
@@ -52,7 +76,7 @@ export const createUser = async (req, res) => {
     res.status(500).json({
       message: 'Failed to create user.',
       error,
-      errCode: AUTH_ERR.AUTH001
+      errCode: AUTH_ERR.AUTH001,
     });
 
     return;
@@ -97,7 +121,7 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to delete user',
       error: err,
-      errCode: AUTH_ERR.AUTH002
+      errCode: AUTH_ERR.AUTH002,
     });
 
     return;
@@ -136,7 +160,7 @@ export const getUsers = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to retrieve users',
       error,
-      errCode: AUTH_ERR.AUTH003
+      errCode: AUTH_ERR.AUTH003,
     });
 
     return;
@@ -205,7 +229,7 @@ export const loginUser = async (req, res) => {
     res.status(500).json({
       message: 'Authentication error on our end.',
       error,
-      errCode: AUTH_ERR.AUTH004
+      errCode: AUTH_ERR.AUTH004,
     });
 
     return;
@@ -249,7 +273,7 @@ export const refreshToken = async (req, res) => {
     res.status(500).json({
       message: 'Server error on our end.',
       error,
-      errCode: AUTH_ERR.AUTH005
+      errCode: AUTH_ERR.AUTH005,
     });
   }
 };
@@ -290,7 +314,7 @@ export const logoutUser = async (req, res) => {
     res.status(500).json({
       message: 'Server error while attempting to logout user',
       error,
-      errCode: AUTH_ERR.AUTH006
+      errCode: AUTH_ERR.AUTH006,
     });
   }
 };
