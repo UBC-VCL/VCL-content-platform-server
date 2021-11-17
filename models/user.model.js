@@ -27,6 +27,11 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    person: {
+      type: mongoose.ObjectId,
+      ref: "Person",
+      required: true,
+    },
   },
   {
     timestamps: true,
