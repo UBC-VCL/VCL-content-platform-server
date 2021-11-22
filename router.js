@@ -1,4 +1,6 @@
 import express from "express";
+import validate from "./validations/validation.js";
+import projectValidationSchema from "./validations/models/projectValidation.model.js";
 
 //Snapshot controller imports
 import {
@@ -40,10 +42,10 @@ router.get("/api/snapshots/:id", getSnapshot);
 /**
  * PROJECT ENDPOINTS
  */
-router.post("/api/projects", createProject);
 router.get("/api/projects", getProjects);
 router.get("/api/projects/:name", getProject);
-router.put("/api/projects/:name", updateProject);
+router.post("/api/projects", validate(projectValidationSchema), createProject);
+router.put("/api/projects/:name", validate(projectValidationSchema), updateProject);
 router.delete("/api/projects/:name", deleteProject);
 
 /**

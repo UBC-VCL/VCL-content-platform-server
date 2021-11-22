@@ -69,19 +69,17 @@ export const getProjects = async (req, res) => {
  */
 export const getProject = async (req, res) => {
   try {
-    const name = req.body.name;
+    const name = req.params.name;
     const project = await Project.findOne({ name });
 
-    res.status(200).json({
-      message: `Successfully retrieved project ${name}`,
-      data: project,
-    });
+    if (project) {
+      res.status(200).json({
+        message: `Successfully retrieved project ${name}`,
+        data: project,
+      });
+    } else throw `Could not find project with name: ${name}`;
   } catch (error) {
-    res.status(500).json({
-      message: `Could not find project by name`,
-      error,
-      errCode: PROJECT_ERR.PROJECT003,
-    });
+    res.status(400).json({ message: error });
   }
 };
 
@@ -97,18 +95,18 @@ export const updateProject = async (req, res) => {
       });
     } else {
       try {
-        const name = req.body.name;
+        const name = req.params.name;
         const updatedProject = await Project.findOneAndUpdate(name, req.body, {
           new: true,
         });
-        res.status(200).json({
-          message: `Successfully updated project: ${name}`,
-          data: updatedProject,
-        });
+        if (updatedProject) {
+          res.status(200).json({
+            message: `Successfully updated project: ${name}`,
+            data: updatedProject,
+          });
+        } else throw `Could not update project with name: ${name}`;
       } catch (error) {
-        res.status(400).json({
-          message: "Error - Could not update project",
-        });
+        res.status(400).json({ message: error });
       }
     }
   } catch (error) {

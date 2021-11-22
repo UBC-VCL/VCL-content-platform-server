@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+/**
+ * This is the schema for a Project in the VCL content platform.
+ * 
+ * Any updates to this schema MUST ALSO be made to the projectValidationSchema
+ * in projectValidation.model.js!!
+ */
 const projectSchema = new Schema(
   {
     name: {

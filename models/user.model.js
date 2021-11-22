@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+/**
+ * This is the schema for a User in the VCL content platform.
+ * 
+ * Any updates to this schema MUST ALSO be made to the userValidationSchema
+ * in userValidation.model.js!!
+ */
 const userSchema = new Schema(
   {
     username: {
