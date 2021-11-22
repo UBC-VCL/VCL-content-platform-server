@@ -42,9 +42,9 @@ router.get("/api/snapshots/:id", getSnapshot);
  */
 router.post("/api/projects", createProject);
 router.get("/api/projects", getProjects);
-router.get("/api/projects/:id", getProject);
-router.put("/api/projects/:id", updateProject);
-router.delete("/api/projects/:id", deleteProject);
+router.get("/api/projects/:name", getProject);
+router.put("/api/projects/:name", updateProject);
+router.delete("/api/projects/:name", deleteProject);
 
 /**
  * AUTHENTICATION ENDPOINTS
