@@ -4,6 +4,9 @@
  * to this enum.
  *
  * Every code in this enum should only be used ONCE - it is a unique identifier!
+ *
+ * If an error code is no longer used, then comment it out. If you are adding a new error,
+ * you can use any commented out error code instead of creating a new one.
  */
 
 const AUTH_ERR = {

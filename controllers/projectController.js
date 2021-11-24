@@ -147,7 +147,7 @@ export const deleteProject = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({
-      message: "Internal server error while attempting to delet project",
+      message: "Internal server error while attempting to delete project",
       errCode: PROJECT_ERR.PROJECT004,
       error,
     });
