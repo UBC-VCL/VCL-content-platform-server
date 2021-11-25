@@ -1,6 +1,4 @@
 import PROJECT_ERR from "../errors/projectErrors.js";
-import { checkAccessToken } from "../helpers/authHelper.js";
-import { USER_TYPES } from "../helpers/types.js";
 import Project from "../models/project.model.js";
 import { hasMemberPermissions } from "../helpers/authHelper.js";
 
@@ -9,9 +7,9 @@ import { hasMemberPermissions } from "../helpers/authHelper.js";
  */
 export const createProject = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (!hasMemberPermissions(access.permissions)) {
+    if (!isMember) {
       res.status(400).json({
         message: "Invalid access - must be a member to create a new project.",
       });
@@ -89,8 +87,9 @@ export const getProject = async (req, res) => {
  */
 export const updateProject = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
-    if (!hasMemberPermissions(access.userPermissions)) {
+    const isMember = await hasMemberPermissions(req.headers.authorization);
+
+    if (!isMember) {
       res.status(400).json({
         message: "Invalid access - must be a member to update a project",
       });
@@ -124,9 +123,9 @@ export const updateProject = async (req, res) => {
  */
 export const deleteProject = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (!hasMemberPermissions(access.userPermissions)) {
+    if (!isMember) {
       res.status(400).json({
         message: "Invalid access - must be a member to delete a project.",
       });

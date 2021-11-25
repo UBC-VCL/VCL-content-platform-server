@@ -1,9 +1,7 @@
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import User from "../models/user.model.js";
-import { checkAccessToken } from "../helpers/authHelper.js";
 import AUTH_ERR from "../errors/authErrors.js";
-import { USER_TYPES } from "../helpers/types.js";
 import {
   hasAdminPermissions,
   hasMemberPermissions,
@@ -77,9 +75,9 @@ export const createUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isAdmin = await hasAdminPermissions(req.headers.authorization);
 
-    if (!hasAdminPermissions(access.userPermissions)) {
+    if (!isAdmin) {
       res.status(400).json({
         message: "Invalid access - only admins can delete users",
       });
@@ -118,9 +116,9 @@ export const deleteUser = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isAdmin = await hasAdminPermissions(req.headers.authorization);
 
-    if (!hasAdminPermissions(USER_TYPES.ADMIN)) {
+    if (!isAdmin) {
       res.status(400).json({
         message: "Invalid access - only an admin can access all users",
       });
@@ -136,7 +134,7 @@ export const getUsers = async (req, res) => {
 
       return;
     }
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({
       message: "Internal server error while attempting to retrieve users",
       error,
@@ -268,9 +266,9 @@ export const refreshToken = async (req, res) => {
  */
 export const logoutUser = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (!hasMemberPermissions(access.userPermissions)) {
+    if (!isMember) {
       res.status(400).json({
         message: "Invalid access - user must be logged in to log out",
       });

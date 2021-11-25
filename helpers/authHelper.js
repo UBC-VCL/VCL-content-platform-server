@@ -6,7 +6,7 @@ import { USER_TYPES, USER_TYPE_NAMES } from "./types.js";
 //    userPermissions: "member" | "admin",
 //    isValidToken: boolean
 // }
-export const checkAccessToken = async (access_token) => {
+const checkAccessToken = async (access_token) => {
   let userPermissions = null;
   let isValidToken = false;
 
@@ -23,10 +23,12 @@ export const checkAccessToken = async (access_token) => {
   };
 };
 
-export const hasMemberPermissions = (permissions) => {
-  return USER_TYPE_NAMES.includes(permissions);
+export const hasMemberPermissions = async (accessToken) => {
+  const token = await checkAccessToken(accessToken);
+  return token.isValidToken && USER_TYPE_NAMES.includes(token.userPermissions);
 };
 
-export const hasAdminPermissions = (permissions) => {
-  return permissions === USER_TYPES.ADMIN;
+export const hasAdminPermissions = async (accessToken) => {
+  const token = await checkAccessToken(accessToken);
+  return token.isValidToken && token.userPermissions === USER_TYPES.ADMIN;
 };
