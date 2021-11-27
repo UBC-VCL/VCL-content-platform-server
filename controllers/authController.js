@@ -19,9 +19,11 @@ import {
  */
 export const createUser = async (req, res) => {
   try {
-    if (!(req.body.username && req.body.password && req.body.permissions)) {
+    const isAdmin = await hasAdminPermissions(req.headers.authorization);
+
+    if (!isAdmin) {
       res.status(400).json({
-        message: "Invalid request body.",
+        message: "Must be an admin to create a new user.",
       });
       return;
     }

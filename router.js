@@ -56,7 +56,7 @@ router.delete("/api/projects/:name", deleteProject);
  */
 router.post("/api/users", validate(userCreationSchema), createUser);
 router.get("/api/users", getUsers);
-router.delete("/api/users/:username", validate(userValidationSchema), deleteUser);
+router.delete("/api/users/:username", deleteUser);
 router.post("/api/users/login", loginUser);
 router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
