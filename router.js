@@ -1,12 +1,26 @@
-import express from 'express';
+import express from "express";
+import validate from "./validations/validation.js";
+import projectValidationSchema from "./validations/models/projectValidation.model.js";
+import {
+  userCreationSchema, userValidationSchema
+} from "./validations/models/userValidation.model.js"
 
-//CRUD controller imports
+//Snapshot controller imports
 import {
   createSnapshot,
   getAllSnapshots,
   deleteSnapshot,
   getSnapshot,
-} from "./controllers/crudController.js";
+} from "./controllers/snapshotController.js";
+
+// Project controller imports
+import {
+  createProject,
+  getProject,
+  getProjects,
+  updateProject,
+  deleteProject,
+} from "./controllers/projectController.js";
 
 //AUTH controller imports
 import {
@@ -20,34 +34,31 @@ import {
 
 const router = express.Router();
 
-//Define POST route for creating timeline snapshot
+/**
+ * SNAPSHOT ENDPOINTS
+ */
 router.post("/api/snapshots", createSnapshot);
-
-// Define GET route for getting all timeline snapshots
 router.get("/api/snapshots", getAllSnapshots);
-
-// Define DEL route for deleting a snapshot given the ID
 router.delete("/api/snapshots/:id", deleteSnapshot);
-
-// Define GET route for getting a snapshot given the ID
 router.get("/api/snapshots/:id", getSnapshot);
 
-// POST route for creating user
-router.post("/api/users", createUser);
+/**
+ * PROJECT ENDPOINTS
+ */
+router.get("/api/projects", getProjects);
+router.get("/api/projects/:name", getProject);
+router.post("/api/projects", validate(projectValidationSchema), createProject);
+router.put("/api/projects/:name", validate(projectValidationSchema), updateProject);
+router.delete("/api/projects/:name", deleteProject);
 
-// GET route for getting users
+/**
+ * AUTHENTICATION ENDPOINTS
+ */
+router.post("/api/users", validate(userCreationSchema), createUser);
 router.get("/api/users", getUsers);
-
-// DELETE route for deleting user by username
 router.delete("/api/users/:username", deleteUser);
-
-// POST route for user authentication
 router.post("/api/users/login", loginUser);
-
-// POST route for user logout
-router.post('/api/users/logout', logoutUser);
-
-// GET route for refreshing access token
+router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
 
 export default router;

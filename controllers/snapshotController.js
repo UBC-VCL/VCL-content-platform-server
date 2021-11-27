@@ -1,6 +1,5 @@
-import CRUD_ERR from "../errors/crudErrors.js";
-import { checkAccessToken } from "../helpers/authHelper.js";
-import { USER_TYPES } from "../helpers/types.js";
+import SNAPSHOT_ERR from "../errors/snapshotErrors.js";
+import { hasMemberPermissions } from "../helpers/authHelper.js";
 import Snapshot from "../models/snapshot.model.js";
 
 /**
@@ -25,9 +24,9 @@ import Snapshot from "../models/snapshot.model.js";
  */
 export const createSnapshot = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (access.userPermissions !== USER_TYPES.MEMBER) {
+    if (!isMember) {
       res.status(400).json({
         message: 'Invalid access - must be a member to create a snapshot'
       });
@@ -66,7 +65,7 @@ export const createSnapshot = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to create snapshot',
       error: err,
-      errCode: CRUD_ERR.CRUD001
+      errCode: SNAPSHOT_ERR.SNAPSHOT001
     });
 
     return;
@@ -90,7 +89,7 @@ export const getAllSnapshots = async (req, res) => {
       res.status(500).json({
         message: "Error getting all timeline snapshots from MongoDB",
         error: err,
-        errCode: CRUD_ERR.CRUD002
+        errCode: SNAPSHOT_ERR.SNAPSHOT002
       });
     });
 };
@@ -102,9 +101,9 @@ export const getAllSnapshots = async (req, res) => {
  */
 export const deleteSnapshot = async (req, res) => {
   try {
-    const access = await checkAccessToken(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (access.userPermissions !== USER_TYPES.MEMBER) {
+    if (!isMember) {
       res.status(400).json({
         message: 'Invalid access - must be a user to delete a snapshot'
       });
@@ -128,7 +127,7 @@ export const deleteSnapshot = async (req, res) => {
     res.status(500).json({
       message: 'Internal server error while attempting to delete snapshot',
       error: err,
-      errCode: CRUD_ERR.CRUD003
+      errCode: SNAPSHOT_ERR.SNAPSHOT003
     });
   }
 };
@@ -153,7 +152,7 @@ export const getSnapshot = async (req, res) => {
       res.status(500).json({
         message: "Error retrieving timeline snapshot from MongoDB",
         error: err,
-        errCode: CRUD_ERR.CRUD004
+        errCode: SNAPSHOT_ERR.SNAPSHOT004
       });
     });
 };
