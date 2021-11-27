@@ -132,11 +132,15 @@ export const deleteProject = async (req, res) => {
       return;
     } else {
       try {
-        const name = req.body.name;
-        await Project.deleteOne({ name });
-        res.status(200).json({
-          message: `Successfully deleted project: ${name}`,
-        });
+        const name = req.params.name;
+        const { deletedCount } = await Project.deleteOne({ name });
+        if (deletedCount === 0) {
+          throw `could not find Project with name <${name}> to delete.`;
+        } else {
+          res.status(200).json({
+            message: `Successfully deleted project: ${name}`,
+          });
+        }
       } catch (error) {
         res.status(400).json({
           message: `Error - could not delete given project`,

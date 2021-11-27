@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import userValidationSchema from "./userValidation.model.js";
+import { userValidationSchema } from "./userValidation.model.js";
 
 const projectValidationSchema = yup.object({
   name: yup.string().required(),

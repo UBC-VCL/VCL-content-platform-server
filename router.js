@@ -1,6 +1,9 @@
 import express from "express";
 import validate from "./validations/validation.js";
 import projectValidationSchema from "./validations/models/projectValidation.model.js";
+import {
+  userCreationSchema, userValidationSchema
+} from "./validations/models/userValidation.model.js"
 
 //Snapshot controller imports
 import {
@@ -51,9 +54,9 @@ router.delete("/api/projects/:name", deleteProject);
 /**
  * AUTHENTICATION ENDPOINTS
  */
-router.post("/api/users", createUser);
+router.post("/api/users", validate(userCreationSchema), createUser);
 router.get("/api/users", getUsers);
-router.delete("/api/users/:username", deleteUser);
+router.delete("/api/users/:username", validate(userValidationSchema), deleteUser);
 router.post("/api/users/login", loginUser);
 router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
