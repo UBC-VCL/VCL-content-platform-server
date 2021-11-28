@@ -18,6 +18,11 @@ import {
   logoutUser,
 } from "./controllers/authController.js";
 
+//MEMBER controller imports
+import {
+  createMember
+} from "./controllers/memberController.js";
+
 const router = express.Router();
 
 //Define POST route for creating timeline snapshot
@@ -49,5 +54,8 @@ router.post('/api/users/logout', logoutUser);
 
 // GET route for refreshing access token
 router.get("/api/tokens/access_token", refreshToken);
+
+// POST route for creating lab member
+router.post('/api/members', createMember);
 
 export default router;

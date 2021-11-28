@@ -27,9 +27,9 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    person: {
+    member: {
       type: mongoose.ObjectId,
-      ref: "Person",
+      ref: "Member",
       required: true,
     },
   },

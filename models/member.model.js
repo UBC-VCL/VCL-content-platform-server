@@ -2,13 +2,12 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const personSchema = new Schema(
+const memberSchema = new Schema(
   {
-    // relates person to person. person object doesn't need to have an associated user
+    // relates member to user. member document doesn't need to have an associated user
     username: {
       type: String,
       trim: true,
-      unique: true,
     },
     projects: [{ type: mongoose.ObjectId, ref: "Project" }],
     isActive: {
@@ -18,10 +17,12 @@ const personSchema = new Schema(
     firstName: {
       type: String,
       trim: true,
+      required: true,
     },
     lastName: {
       type: String,
       trim: true,
+      required: true,
     },
     email: {
       type: String,
@@ -38,5 +39,5 @@ const personSchema = new Schema(
 );
 
 mongoose.set('useFindAndModify', false);
-const Person = mongoose.model("Person", personSchema);
-export default Person;
+const Member = mongoose.model("Member", memberSchema);
+export default Member;
