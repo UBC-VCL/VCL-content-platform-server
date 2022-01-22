@@ -33,6 +33,11 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    member: {
+      type: mongoose.ObjectId,
+      ref: "Member",
+      required: true,
+    },
   },
   {
     timestamps: true,

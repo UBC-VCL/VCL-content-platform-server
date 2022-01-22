@@ -5,6 +5,7 @@ import AUTH_ERR from "../errors/authErrors.js";
 import {
   hasAdminPermissions,
   hasMemberPermissions,
+  sendCreateUser,
 } from "../helpers/authHelper.js";
 
 /**
@@ -28,23 +29,7 @@ export const createUser = async (req, res) => {
       return;
     }
 
-    // Generate 21 length tokens
-    const access_token = nanoid();
-    const refresh_token = nanoid();
-
-    // Generate salted hash for password
-    const hash = await bcrypt.hash(req.body.password, 10);
-
-    // Create user document
-    const newUser = new User({
-      username: req.body.username,
-      hash,
-      permissions: req.body.permissions,
-      refresh_token,
-      access_token,
-    });
-
-    const data = await newUser.save();
+    const data = await sendCreateUser(req.body);
 
     res.status(200).json({
       message: "Successfully created user.",

@@ -8,18 +8,23 @@ const MIN_USERNAME_LENGTH = 4;
  * Schema verified against when creating a new User
  */
 export const userCreationSchema = yup.object({
-  username: yup.string().min(MIN_USERNAME_LENGTH).required(),
-  password: yup.string().min(MIN_PASSWORD_LENGTH).required(),
-  permissions: yup.string().oneOf(USER_TYPE_NAMES).required()
-})
-
-/**
- * Schema validated against when performing other actions involving Users
- * e.g. updating username/password/permissions, referencing user in a Project, etc
- */
-export const userValidationSchema = yup.object({
-  _id: yup.string().required(),
-  username: yup.string().min(MIN_USERNAME_LENGTH),
-  password: yup.string().min(MIN_PASSWORD_LENGTH),
-  permissions: yup.string().oneOf(USER_TYPE_NAMES)
+  username: yup
+    .string()
+    .min(
+      MIN_USERNAME_LENGTH,
+      `Minimum username length is ${MIN_USERNAME_LENGTH}`
+    )
+    .required("Username is required"),
+  password: yup
+    .string()
+    .min(
+      MIN_PASSWORD_LENGTH,
+      `Minimum password length is ${MIN_PASSWORD_LENGTH}`
+    )
+    .required("Password is required"),
+  permissions: yup
+    .string()
+    .oneOf(USER_TYPE_NAMES, "User permission level provided does not exist")
+    .required("User permission is required"),
+  member: yup.string().required("Member ID is required"),
 });
