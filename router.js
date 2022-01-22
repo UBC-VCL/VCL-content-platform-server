@@ -1,9 +1,7 @@
 import express from "express";
 import validate from "./validations/validation.js";
 import projectValidationSchema from "./validations/models/projectValidation.model.js";
-import {
-  userCreationSchema, userValidationSchema
-} from "./validations/models/userValidation.model.js"
+import { userCreationSchema } from "./validations/models/userValidation.model.js";
 
 //Snapshot controller imports
 import {
@@ -33,9 +31,7 @@ import {
 } from "./controllers/authController.js";
 
 //MEMBER controller imports
-import {
-  createMember
-} from "./controllers/memberController.js";
+import { createMember } from "./controllers/memberController.js";
 
 const router = express.Router();
 
@@ -53,7 +49,11 @@ router.get("/api/snapshots/:id", getSnapshot);
 router.get("/api/projects", getProjects);
 router.get("/api/projects/:name", getProject);
 router.post("/api/projects", validate(projectValidationSchema), createProject);
-router.put("/api/projects/:name", validate(projectValidationSchema), updateProject);
+router.put(
+  "/api/projects/:name",
+  validate(projectValidationSchema),
+  updateProject
+);
 router.delete("/api/projects/:name", deleteProject);
 
 /**
@@ -67,6 +67,6 @@ router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
 
 // POST route for creating lab member
-router.post('/api/members', createMember);
+router.post("/api/members", createMember);
 
 export default router;
