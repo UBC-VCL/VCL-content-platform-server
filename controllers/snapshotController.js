@@ -156,3 +156,40 @@ export const getSnapshot = async (req, res) => {
       });
     });
 };
+
+/**
+@param Expected request body: subset of fields in models/snapshot.model.js, request url parameter: id - ID of the timeline snapshot to update
+@param Responds with a message saying edit successful + updated snapshot, or an error if something went wrong
+*/
+
+export const updateSnapshot = async (req, res) => {
+  try {
+    const isMember = await hasMemberPermissions(req.headers.authorization);
+
+    if (!isMember) {
+      res.status(400).json({
+        message: 'Invalid access - must be a user to update a snapshot'
+      });
+    } else {
+      try {
+        const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, req.body, {
+          new: true,
+        });
+        if (updatedSnapshot) {
+          res.status(200).json({
+            message: 'Successfully updated snapshot',
+            data: updatedSnapshot,
+          });
+        } else throw `Could not update snapshot`;
+      } catch {
+        res.status(400).json({ message: error });
+      }
+    } 
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error while attempting to update snapshot",
+      errCode: 'SNAPSHOT005',
+      error,
+    });
+  }
+}
