@@ -181,7 +181,7 @@ export const updateSnapshot = async (req, res) => {
             data: updatedSnapshot,
           });
         } else throw `Could not update snapshot`;
-      } catch {
+      } catch (error) {
         res.status(400).json({ message: error });
       }
     } 
