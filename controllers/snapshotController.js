@@ -74,10 +74,12 @@ export const createSnapshot = async (req, res) => {
 
 /**
  * @param Expected request body: None
- * @param Responds with all timeline objects found in database
+ * @param Responds with all timeline objects found in database, 
+ * sorted by date (most recent to least recent)
  */
 export const getAllSnapshots = async (req, res) => {
   Snapshot.find()
+    .sort('-date')
     .exec()
     .then((data) => {
       res.status(200).json({
