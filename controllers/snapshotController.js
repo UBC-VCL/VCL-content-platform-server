@@ -1,6 +1,7 @@
 import SNAPSHOT_ERR from "../errors/snapshotErrors.js";
 import { hasMemberPermissions } from "../helpers/authHelper.js";
 import Snapshot from "../models/snapshot.model.js";
+import User from "../models/user.model.js";
 
 /**
  * 
@@ -185,7 +186,7 @@ export const updateSnapshot = async (req, res) => {
         let newSnapshot = {};
         
         if (req.body.hasOwnProperty('contributors')) {
-          const users = [];
+          let users = [];
 
           for (let user of req.body.contributors) {
             const lookup = await User.find({'username': new RegExp(`^${user}$`, 'i')});
