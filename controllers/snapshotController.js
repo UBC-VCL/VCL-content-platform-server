@@ -158,7 +158,17 @@ export const getSnapshot = async (req, res) => {
 };
 
 /**
-@param Expected request body: subset of fields in models/snapshot.model.js, request url parameter: id - ID of the timeline snapshot to update
+@param Expected request body: subset of fields in ../models/snapshot.model.js - however, instead 
+of recieving an array of user ObjectIDs in the contributor field, this endpoint expects an array of usernames
+{
+  ... (rest of the fields same as mentioned in ../models/snapshots.model.js)
+  "contributers": [
+    "username1", -- note: usernames are case insensitive, e.g "roBert", "ROBERT" both return the same results
+    "username2",
+    ...
+  ]
+}
+request url parameter: id - ID of the timeline snapshot to update
 @param Responds with a message saying edit successful + updated snapshot, or an error if something went wrong
 */
 
@@ -172,19 +182,40 @@ export const updateSnapshot = async (req, res) => {
       });
     } else {
       try {
-        const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, req.body, {
+        let newSnapshot = {};
+        
+        if (req.body.hasOwnProperty('contributors')) {
+          const users = [];
+
+          for (let user of req.body.contributors) {
+            const lookup = await User.find({'username': new RegExp(`^${user}$`, 'i')});
+            if (lookup.length) users.push(lookup[0]._id);
+            else throw `User ${user} does not exist`;
+          }
+
+          for (let key of Object.keys(req.body)) {
+            if (key == 'contributors') newSnapshot[key] = users;
+            else newSnapshot[key] = req.body[key]
+          }
+        } 
+        else newSnapshot = req.body;
+        
+        const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, newSnapshot, {
           new: true,
         });
+
         if (updatedSnapshot) {
           res.status(200).json({
             message: 'Successfully updated snapshot',
             data: updatedSnapshot,
           });
         } else throw `Could not update snapshot`;
+
       } catch (error) {
         res.status(400).json({ message: error });
       }
     } 
+
   } catch (error) {
     res.status(500).json({
       message: "Internal server error while attempting to update snapshot",
