@@ -193,11 +193,9 @@ export const updateSnapshot = async (req, res) => {
             if (lookup.length) users.push(lookup[0]._id);
             else throw `User ${user} does not exist`;
           }
-
-          for (let key of Object.keys(req.body)) {
-            if (key == 'contributors') newSnapshot[key] = users;
-            else newSnapshot[key] = req.body[key]
-          }
+          
+          newSnapshot = req.body;
+          newSnapshot['contributors'] = users;
         } 
         else newSnapshot = req.body;
         
