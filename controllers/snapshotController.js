@@ -183,21 +183,17 @@ export const updateSnapshot = async (req, res) => {
       });
     } else {
       try {
-        let newSnapshot = {};
+        let newSnapshot = req.body;
         
         if (req.body.hasOwnProperty('contributors')) {
           let users = [];
-
           for (let user of req.body.contributors) {
             const lookup = await User.find({'username': new RegExp(`^${user}$`, 'i')});
             if (lookup.length) users.push(lookup[0]._id);
             else throw `User ${user} does not exist`;
           }
-          
-          newSnapshot = req.body;
           newSnapshot['contributors'] = users;
         } 
-        else newSnapshot = req.body;
         
         const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, newSnapshot, {
           new: true,
