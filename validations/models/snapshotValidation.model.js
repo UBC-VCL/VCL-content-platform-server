@@ -16,12 +16,7 @@ import { parse, isValid } from 'date-fns';
     .trim()
     .matches(/^20\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$/, 'Invalid date')
     .test('valid-date', 'Invalid date', function(date) {
-        const year = date.substring(0, 4);
-        const month = date.substring(5, 7);
-        const day = date.substring(8, 10);
-        const parsed = parse(`${day}.${month}.${year}`, "dd.MM.yyyy", new Date());
-
-        return isValid(parsed);
+        return isValid(parse(date, "yyyy-MM-dd", new Date()));
     })
 })
 
