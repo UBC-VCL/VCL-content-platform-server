@@ -2,6 +2,7 @@ import express from "express";
 import validate from "./validations/validation.js";
 import projectValidationSchema from "./validations/models/projectValidation.model.js";
 import { userCreationSchema } from "./validations/models/userValidation.model.js";
+import snapshotValidationSchema from "./validations/models/snapshotValidation.model.js";
 
 //Snapshot controller imports
 import {
@@ -38,7 +39,7 @@ const router = express.Router();
 /**
  * SNAPSHOT ENDPOINTS
  */
-router.post("/api/snapshots", createSnapshot);
+router.post("/api/snapshots", validate(snapshotValidationSchema), createSnapshot);
 router.get("/api/snapshots", getAllSnapshots);
 router.delete("/api/snapshots/:id", deleteSnapshot);
 router.get("/api/snapshots/:id", getSnapshot);
