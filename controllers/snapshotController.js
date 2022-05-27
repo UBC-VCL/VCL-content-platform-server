@@ -73,18 +73,14 @@ export const createSnapshot = async (req, res) => {
 };
 
 /**
- * @param Expected request body: None,
- * @param Responds with all timeline objects found in database
+ * @param Expected request body: None, request query parameters (optional): project, categories, date, author
+ * @param Responds with all timeline objects found in database if no query parameters specified, else filters timeline
+ *                 objects based on query parameters
  */
 export const getAllSnapshots = async (req, res) => {
-    const {project, category, date, author} = req.query;
+    const filter = req.query;
     Snapshot.find(
-        {
-            project: project,
-            categories: category,
-            date: date,
-            author: author
-        }
+        filter
     )
         .exec()
         .then((data) => {
