@@ -39,10 +39,9 @@ const router = express.Router();
  * SNAPSHOT ENDPOINTS
  */
 router.post("/api/snapshots", createSnapshot);
-router.get("/api/snapshots/:project/:category/:year/:month/:day/:author", getAllSnapshots);
+router.get("/api/snapshots", getAllSnapshots);
 router.delete("/api/snapshots/:id", deleteSnapshot);
 router.get("/api/snapshots/:id", getSnapshot);
-
 
 /**
  * PROJECT ENDPOINTS

@@ -73,13 +73,11 @@ export const createSnapshot = async (req, res) => {
 };
 
 /**
- * @param Expected request body: None, 
+ * @param Expected request body: None,
  * @param Responds with all timeline objects found in database
  */
 export const getAllSnapshots = async (req, res) => {
-    const {project, category,year,month,day, author} = req.params;
-    const date = `${year}/${month}/${day}`;
-
+    const {project, category, date, author} = req.query;
     Snapshot.find(
         {
             project: project,
