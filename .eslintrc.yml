@@ -12,12 +12,6 @@ rules:
   quotes:
     - error
     - single
-  semi:
-    - error
-    - always
-  comma-dangle:
-    - error
-    - never
   linebreak-style:
     - error
     - unix
