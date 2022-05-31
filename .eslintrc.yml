@@ -28,7 +28,4 @@ rules:
     - error
     - before: true
       after: true
-  curly:
-    - error
-    - all
   
