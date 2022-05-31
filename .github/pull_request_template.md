@@ -8,7 +8,7 @@
 
 ### Updates
 
-[Please enter a brief summary of updates to this PR during code review]
+[Please enter a brief summary of updates to this PR during code review - if any]
 
 ## Checklist
 
