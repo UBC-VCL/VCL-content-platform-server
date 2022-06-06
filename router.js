@@ -10,6 +10,7 @@ import {
   getAllSnapshots,
   deleteSnapshot,
   getSnapshot,
+  updateSnapshot,
 } from "./controllers/snapshotController.js";
 
 // Project controller imports
@@ -43,6 +44,7 @@ router.post("/api/snapshots", validate(snapshotValidationSchema), createSnapshot
 router.get("/api/snapshots", getAllSnapshots);
 router.delete("/api/snapshots/:id", deleteSnapshot);
 router.get("/api/snapshots/:id", getSnapshot);
+router.put("/api/snapshots/:id", updateSnapshot);
 
 /**
  * PROJECT ENDPOINTS
