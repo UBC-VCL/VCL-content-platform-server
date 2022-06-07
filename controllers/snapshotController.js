@@ -89,6 +89,7 @@ export const getAllSnapshots = async (req, res) => {
   }
 
   Snapshot.find(filter)
+    .sort('-date')
     .exec()
     .then((data) => {
       res.status(200).json({
