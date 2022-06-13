@@ -12,9 +12,6 @@ rules:
   quotes:
     - error
     - single
-  linebreak-style:
-    - error
-    - unix
   space-before-blocks:
     - error
     - always
