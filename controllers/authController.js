@@ -284,6 +284,92 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-export const changeUsername = async (req, res) => {};
+/**
+ *
+ * @param Expected request body:
+ *        {
+ *          username: string,
+ *        }
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with status code and messsage.
+ */
+export const changeUsername = async (req, res) => {
+  try {
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-export const changePassword = async (req, res) => {};
+    if (!isMember) {
+      res.status(400).json({
+        message: "Invalid access - user must be logged in to change username",
+      });
+    } else {
+      const username = req.body.username;
+
+      const data = await User.findOneAndUpdate(
+        { access_token: req.headers.authorization },
+        { $set: { username } }
+      );
+
+      if (data) {
+        res.status(200).json({
+          message: "Successfully changed user name.",
+          data: true,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error while attempting to change username",
+      error,
+      errCode: AUTH_ERR.AUTH008,
+    });
+  }
+};
+
+/**
+ *
+ * @param Expected request body:
+ *        {
+ *          username: string,
+ *        }
+ * @param Expected HEADERS:
+ *        {
+ *          authorization: string,
+ *        }
+ * @param Responds with status code and messsage.
+ */
+export const changePassword = async (req, res) => {
+  try {
+    const isMember = await hasMemberPermissions(req.headers.authorization);
+
+    if (!isMember) {
+      res.status(400).json({
+        message: "Invalid access - user must be logged in to change password",
+      });
+    } else {
+      const access_token = nanoid();
+      const refresh_token = nanoid();
+      const hash = await bcrypt.hash(req.body.password, 10);
+
+      const data = await User.findOneAndUpdate(
+        { access_token: req.headers.authorization },
+        { $set: { access_token, refresh_token, hash } }
+      );
+
+      if (data) {
+        res.status(200).json({
+          message: "Successfully changed password.",
+          data: true,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error while attempting to change password",
+      error,
+      errCode: AUTH_ERR.AUTH009,
+    });
+  }
+};
