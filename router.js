@@ -30,6 +30,8 @@ import {
   getUsers,
   deleteUser,
   logoutUser,
+  changeUsername,
+  changePassword,
 } from "./controllers/authController.js";
 
 //MEMBER controller imports
@@ -68,6 +70,8 @@ router.delete("/api/users/:username", deleteUser);
 router.post("/api/users/login", loginUser);
 router.post("/api/users/logout", logoutUser);
 router.get("/api/tokens/access_token", refreshToken);
+router.put("/api/users/change_username", changeUsername);
+router.put("/api/users/change_password", changePassword);
 
 // POST route for creating lab member
 router.post("/api/members", createMember);

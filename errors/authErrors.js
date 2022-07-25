@@ -17,6 +17,8 @@ const AUTH_ERR = {
   AUTH005: "AUTH005",
   AUTH006: "AUTH006",
   AUTH007: "AUTH007",
+  AUTH008: "AUTH008",
+  AUTH009: "AUTH009",
 };
 
 Object.freeze(AUTH_ERR);
