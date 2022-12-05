@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
+    "start": "node index.js",
     "lint": "eslint **/*.js",
     "lint:fix": "eslint **/*.js --fix"
   },
@@ -23,7 +23,6 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "eslint": "^8.16.0",
-    "nodemon": "^2.0.20"
+    "eslint": "^8.16.0"
   }
 }
