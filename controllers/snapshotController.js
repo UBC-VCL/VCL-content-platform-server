@@ -153,6 +153,8 @@ export const deleteSnapshot = async (req, res) => {
 export const getSnapshot = async (req, res) => {
   let id = req.params.id;
   Snapshot.findById(id)
+    .populate('author')
+    .populate('contributors')
     .exec()
     .then((data) => {
       res.status(200).json({
@@ -195,6 +197,10 @@ export const updateSnapshot = async (req, res) => {
     } else {
       try {
         let newSnapshot = req.body;
+
+        const author = await User.find({'username': new RegExp(`^${newSnapshot.author}$`, 'i')});
+        if (!author.length) throw new Error('Author not found');
+        newSnapshot.author = author[0]._id;
         
         if (req.body.hasOwnProperty('contributors')) {
           let users = [];
