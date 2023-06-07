@@ -28,9 +28,9 @@ export const createUser = async (req, res) => {
       });
       return;
     }
-
+    //console.log(req.body);
     const data = await sendCreateUser(req.body);
-
+    console.log(data);
     res.status(200).json({
       message: "Successfully created user.",
       data,
