@@ -54,8 +54,16 @@ export const sendCreateUser = async (user) => {
     access_token,
     hash,
   });
-  console.log(newUser);
+
   const data = await newUser.save();
 
   return data;
 }
+
+const authHelper = {
+  hasMemberPermissions,
+  hasAdminPermissions,
+  sendCreateUser
+
+};
+export default authHelper;
