@@ -50,7 +50,7 @@ export const createUser = async (req, res) => {
 
 /**
  *
- * @param Expected request body:
+ * @param Expected request parameter:
  *        {
  *          username: string,
  *        }
@@ -60,6 +60,7 @@ export const createUser = async (req, res) => {
  *        }
  * @param Responds with status code and messsage.
  */
+
 export const deleteUser = async (req, res) => {
   try {
     const isAdmin = await hasAdminPermissions(req.headers.authorization);
