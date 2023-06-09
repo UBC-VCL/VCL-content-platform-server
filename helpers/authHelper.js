@@ -54,11 +54,7 @@ export const sendCreateUser = async (user) => {
     access_token,
     hash,
   });
-<<<<<<< HEAD
 
-=======
-  console.log(newUser);
->>>>>>> aaf2483 (the test file finally pass)
   const data = await newUser.save();
 
   return data;
