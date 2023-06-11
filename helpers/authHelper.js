@@ -37,7 +37,6 @@ export const hasAdminPermissions = async (accessToken) => {
 };
 
 export const sendCreateUser = async (user) => {
-  console.log("used this method");
   // Generate 21 length tokens
   const access_token = nanoid();
   const refresh_token = nanoid();

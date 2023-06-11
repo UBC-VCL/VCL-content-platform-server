@@ -30,7 +30,6 @@ export const createUser = async (req, res) => {
     }
     //console.log(req.body);
     const data = await sendCreateUser(req.body);
-    console.log(data);
     res.status(200).json({
       message: "Successfully created user.",
       data,
@@ -313,6 +312,7 @@ export const changeUsername = async (req, res) => {
         { $set: { username } }
       );
 
+      //TODO: why true is sent?
       if (data) {
         res.status(200).json({
           message: "Successfully changed user name.",
