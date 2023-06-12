@@ -18,7 +18,8 @@ export const createProject = async (req, res) => {
       const { name, description, members, isActive } = req.body;
       const newProject = new Project({ name, description, members, isActive });
 
-      newProject
+      //TODO: should add await
+      await newProject
         .save()
         .then((data) => {
           res.status(200).json({
@@ -46,7 +47,7 @@ export const createProject = async (req, res) => {
  * Get all Projects
  */
 export const getProjects = async (req, res) => {
-  Project.find()
+  await Project.find()
     .exec()
     .then((data) => {
       res.status(200).json({
@@ -96,7 +97,7 @@ export const updateProject = async (req, res) => {
     } else {
       try {
         const name = req.params.name;
-        const updatedProject = await Project.findOneAndUpdate(name, req.body, {
+        const updatedProject = await Project.findOneAndUpdate({name: name}, req.body, {
           new: true,
         });
         if (updatedProject) {
