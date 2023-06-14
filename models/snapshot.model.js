@@ -4,32 +4,28 @@ const Schema = mongoose.Schema;
 
 const snapshotSchema = new Schema(
   {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-    },
-    imageURL: {
-      type: String,
-    },
-    date: {
-      type: Date,
-      required: true,
-    },
-    project: {
-      type: String,
-      required: true,
-    },
     author: {
       type: mongoose.ObjectId,
       ref: "User",
       required: true,
     },
-    categories: [{ type: String }],
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    project: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: Date,
+      required: true,
+    },
+    descriptions: [{ type: String }],
+    hyperlinks: [{ type: String }],
     contributors: [{ type: mongoose.ObjectId, ref: "User" }],
+    categories: [{ type: String }],
   },
   {
     timestamps: true,
