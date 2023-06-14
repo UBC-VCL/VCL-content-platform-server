@@ -22,10 +22,10 @@ const snapshotSchema = new Schema(
       type: Date,
       required: true,
     },
+    categories: [{ type: String }],
     descriptions: [{ type: String }],
     hyperlinks: [{ type: String }],
     contributors: [{ type: mongoose.ObjectId, ref: "User" }],
-    categories: [{ type: String }],
   },
   {
     timestamps: true,
