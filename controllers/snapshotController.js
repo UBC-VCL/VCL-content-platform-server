@@ -7,14 +7,14 @@ import User from "../models/user.model.js";
  * 
  * @param Expected request body:
           {
+            author: ObjectId,
             title: String,
-            description: String,
-            imageURL: String,
+            project: String,
             date: String,
-            project: String
             categories: Array<String>,
-            contributors: Array<ObjectId>,
-            author: ObjectId
+            description: Array<String>,
+            hyperlinks: Array<String>,
+            contributors: Array<ObjectId>
           }
    @param Expected HEADERS:
           {
@@ -35,13 +35,13 @@ export const createSnapshot = async (req, res) => {
 
     } else {
       const newSnapshot = new Snapshot({
-        title: req.body.title,
-        description: req.body.description,
-        imageURL: req.body.imageURL,
-        date: req.body.date,
-        project: req.body.project,
         author: req.body.author,
+        title: req.body.title,
+        project: req.body.project,
+        date: req.body.date,
         categories: req.body.categories,
+        description: req.body.description,
+        hyperlinks: req.body.hyperlinks,
         contributors: req.body.contributors,
       });
 
