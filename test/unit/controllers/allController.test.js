@@ -40,9 +40,11 @@ jest.mock("../../../helpers/authHelper.js", () => {
 import memberControllerTest from './memberControllerTest.js';
 import authControllerTest from "./authControllerTest.js";
 import projectControllerTest from "./projectControllerTest.js";
+import snapshotControllerTest from "./snapshotControllerTest.js";
 memberControllerTest();
 authControllerTest();
 projectControllerTest();
+snapshotControllerTest();
 
 
 
