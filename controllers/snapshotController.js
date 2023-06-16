@@ -45,7 +45,7 @@ export const createSnapshot = async (req, res) => {
         contributors: req.body.contributors,
       });
 
-      newSnapshot
+      await newSnapshot
         .save()
         .then((data) => {
           res.status(200).json({
@@ -119,8 +119,10 @@ export const deleteSnapshot = async (req, res) => {
       res.status(400).json({
         message: 'Invalid access - must be a user to delete a snapshot'
       });
+      console.log("Invalid access - must be a user to delete a snapshot");
     } else {
-      Snapshot.findByIdAndDelete(req.params.id)
+      console.log(req.params.id);
+      await Snapshot.findByIdAndDelete(req.params.id)
         .exec()
         .then((data) => {
           res.status(200).json({
@@ -133,6 +135,7 @@ export const deleteSnapshot = async (req, res) => {
             message: "Error deleting timeline snapshot from MongoDB",
             error: err,
           });
+          console.log("Error deleting timeline snapshot from MongoDB");
         });
     }
   } catch (err) {
