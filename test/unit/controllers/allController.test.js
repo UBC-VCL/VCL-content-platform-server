@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+jest.setTimeout(70000);
 beforeAll( (done)=> {
     const uri = "mongodb+srv://eason:eKur1QlgtndWAkxt@vcl-documentation-app.gcjzz.mongodb.net/VCL-Documentation-App?retryWrites=true&w=majority";
 
@@ -41,18 +41,8 @@ import memberControllerTest from './memberControllerTest.js';
 import authControllerTest from "./authControllerTest.js";
 import projectControllerTest from "./projectControllerTest.js";
 import snapshotControllerTest from "./snapshotControllerTest.js";
+
 memberControllerTest();
 authControllerTest();
 projectControllerTest();
 snapshotControllerTest();
-
-
-
-
-
-
-
-
-
-
-

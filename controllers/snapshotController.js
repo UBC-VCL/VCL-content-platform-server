@@ -40,7 +40,7 @@ export const createSnapshot = async (req, res) => {
         project: req.body.project,
         date: req.body.date,
         categories: req.body.categories,
-        description: req.body.description,
+        descriptions: req.body.descriptions,
         hyperlinks: req.body.hyperlinks,
         contributors: req.body.contributors,
       });
@@ -88,7 +88,7 @@ export const getAllSnapshots = async (req, res) => {
     }
   }
 
-  Snapshot.find(filter)
+  await Snapshot.find(filter)
     .sort('-date')
     .exec()
     .then((data) => {
@@ -121,7 +121,6 @@ export const deleteSnapshot = async (req, res) => {
       });
       console.log("Invalid access - must be a user to delete a snapshot");
     } else {
-      console.log(req.params.id);
       await Snapshot.findByIdAndDelete(req.params.id)
         .exec()
         .then((data) => {
@@ -155,7 +154,7 @@ export const deleteSnapshot = async (req, res) => {
 
 export const getSnapshot = async (req, res) => {
   let id = req.params.id;
-  Snapshot.findById(id)
+  await Snapshot.findById(id)
     .exec()
     .then((data) => {
       res.status(200).json({

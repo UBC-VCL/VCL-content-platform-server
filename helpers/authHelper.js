@@ -43,7 +43,6 @@ export const sendCreateUser = async (user) => {
 
   // Generate salted hash for password
   const hash = await bcrypt.hash(user.password, 10);
-
   // Create user document
   const newUser = new User({
     username: user.username,

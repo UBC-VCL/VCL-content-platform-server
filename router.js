@@ -44,7 +44,7 @@ const router = express.Router();
  */
 router.post("/api/snapshots", validate(snapshotValidationSchema), createSnapshot);
 router.get("/api/snapshots", getAllSnapshots);
-router.delete("/api/snapshots", deleteSnapshot);
+router.delete("/api/snapshots/:id", deleteSnapshot);
 router.get("/api/snapshots/:id", getSnapshot);
 router.put("/api/snapshots/:id", updateSnapshot);
 
