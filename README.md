@@ -14,3 +14,4 @@ To create a database user, navigate to the project "Documentation Web-app" on Mo
 Note to not use a password that you would normally use with other apps.
 
 4. To start the app locally, run `node index.js` in the root directory. Feel free to use nodemon as well :)
+5. To test the app locally, run `npm test` in the root directory. Make sure mongoDB uri is set in `.env` before testing.
