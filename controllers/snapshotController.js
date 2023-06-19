@@ -119,7 +119,6 @@ export const deleteSnapshot = async (req, res) => {
       res.status(400).json({
         message: 'Invalid access - must be a user to delete a snapshot'
       });
-      console.log("Invalid access - must be a user to delete a snapshot");
     } else {
       await Snapshot.findByIdAndDelete(req.params.id)
         .exec()
@@ -134,7 +133,6 @@ export const deleteSnapshot = async (req, res) => {
             message: "Error deleting timeline snapshot from MongoDB",
             error: err,
           });
-          console.log("Error deleting timeline snapshot from MongoDB");
         });
     }
   } catch (err) {
@@ -217,14 +215,21 @@ export const updateSnapshot = async (req, res) => {
             message: 'Successfully updated snapshot',
             data: updatedSnapshot,
           });
-        } else throw `Could not update snapshot`;
+        } else {
+          res.status(400).json({
+            message: 'Could not update snapshot'
+          });
+        };
 
-      } catch (error) {
-        res.status(400).json({ message: error });
-      }
-    } 
-
-  } catch (error) {
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal server error while attempting to update snapshot",
+        errCode: 'SNAPSHOT005',
+        error,
+      });
+    }
+  } 
+}catch (error) {
     res.status(500).json({
       message: "Internal server error while attempting to update snapshot",
       errCode: 'SNAPSHOT005',

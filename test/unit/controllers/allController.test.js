@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+import dotenv from 'dotenv'
+
+dotenv.config();
 jest.setTimeout(70000);
 beforeAll( (done)=> {
-    const uri = "mongodb+srv://eason:eKur1QlgtndWAkxt@vcl-documentation-app.gcjzz.mongodb.net/VCL-Documentation-App?retryWrites=true&w=majority";
-
+    const uri = process.env.ATLAS_URI;
 //Start MongoDB connection
     mongoose.connect(uri, {
         useNewUrlParser: true,

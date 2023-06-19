@@ -181,6 +181,46 @@ const snapshotControllerTest =  ()=>{
 
     //Need ADMIN_001 user to be present
     describe('test on update snapshot', ()=>{
+        test('do not have permission. shoud fail', async ()=>{
+            const testSnapshot = await Snapshot.findOne({title: 'test'});
+            const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+            mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
+            const request = httpMocks.createRequest({
+                url: '/api/snapshots/:id',
+                method: 'PUT',
+                params: {
+                    id: testSnapshot.id
+                },
+                body: {
+                    contributors: ['Admin_001']
+                }
+            });
+            const response = httpMocks.createResponse();
+            await updateSnapshot(request, response);
+            expect(response._getStatusCode()).toBe(400);
+            const temp = JSON.parse(response._getData());
+            expect(temp.message).toBe('Invalid access - must be a user to update a snapshot');
+        });
+        test('pass a dummy id. shoul fail', async()=>{
+            const testSnapshot = await Snapshot.findOne({title: 'test'});
+            const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+            mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
+            const request = httpMocks.createRequest({
+                url: '/api/snapshots/:id',
+                method: 'PUT',
+                params: {
+                    id: "dummyId"
+                },
+                body: {
+                    contributors: ['Admin_001']
+                }
+            });
+            const response = httpMocks.createResponse();
+            await updateSnapshot(request, response);
+            expect(response._getStatusCode()).toBe(500);
+            const temp = JSON.parse(response._getData());
+            expect(temp.message).toBe('Internal server error while attempting to update snapshot');
+        });
         test('should pass', async ()=>{
             const testSnapshot = await Snapshot.findOne({title: 'test'});
             const adminUser = await User.findOne({username: 'ADMIN_001'});
@@ -212,6 +252,7 @@ const snapshotControllerTest =  ()=>{
             expect(temp.data.contributors[0]).toBe(adminUser._id.toString());
             expect(temp.data.author).toBe("61a2dd6b0076a86ec89cd232");
         });
+        
     });
 
     describe('test on delete snapshots', () => {
@@ -252,7 +293,6 @@ const snapshotControllerTest =  ()=>{
         test('should pass', async()=>{
             const testSnapshot = await Snapshot.findOne({title: 'test'});
             const adminUser = await User.findOne({username: 'ADMIN_001'});
-            console.log(adminUser._id.toString());
             const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
             mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
             const request = httpMocks.createRequest({
