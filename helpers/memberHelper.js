@@ -1,8 +1,8 @@
-import Member from "../models/member.model.js";
+import Member from '../models/member.model.js';
 
 export const sendCreateMember = async (member) => {
-  const newMember = new Member(member);
-  const data = await newMember.save();
+	const newMember = new Member(member);
+	const data = await newMember.save();
 
-  return data;
+	return data;
 };

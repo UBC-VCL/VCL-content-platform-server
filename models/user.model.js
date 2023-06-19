@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -9,41 +9,41 @@ const Schema = mongoose.Schema;
  * in userValidation.model.js!!
  */
 const userSchema = new Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      trim: true,
-      unique: true,
-    },
-    hash: {
-      type: String,
-      required: true,
-    },
-    permissions: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    refresh_token: {
-      type: String,
-      required: true,
-    },
-    access_token: {
-      type: String,
-      required: true,
-    },
-    member: {
-      type: mongoose.ObjectId,
-      ref: "Member",
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  }
+	{
+		username: {
+			type: String,
+			required: true,
+			trim: true,
+			unique: true,
+		},
+		hash: {
+			type: String,
+			required: true,
+		},
+		permissions: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		refresh_token: {
+			type: String,
+			required: true,
+		},
+		access_token: {
+			type: String,
+			required: true,
+		},
+		member: {
+			type: mongoose.ObjectId,
+			ref: 'Member',
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+	}
 );
 
 mongoose.set('useFindAndModify', false);
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 export default User;
