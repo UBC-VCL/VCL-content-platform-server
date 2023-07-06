@@ -103,14 +103,14 @@ export const deleteUser = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    const isAdmin = await hasAdminPermissions(req.headers.authorization);
+    const isMember = await hasMemberPermissions(req.headers.authorization);
 
-    if (!isAdmin) {
+    if (!isMember) {
       res.status(400).json({
-        message: "Invalid access - only an admin can access all users",
+        message: 'Invalid access - must be a member to access all users'
       });
-
       return;
+
     } else {
       const users = await User.find();
 
