@@ -1,7 +1,10 @@
 import * as yup from "yup";
 import { sendCreateMember } from "../helpers/memberHelper.js";
 import MEMBER_ERR from "../errors/memberErrors.js";
-
+import Member from "../models/member.model.js";
+import {
+  hasMemberPermissions
+} from "../helpers/authHelper.js";
 /**
  *
  * @param Expected request body -> see models/member.model.js
@@ -47,6 +50,37 @@ export const createMember = async (req, res) => {
       message: "Failed to create lab member.",
       error,
       errCode: MEMBER_ERR.MEMBER002,
+    });
+
+    return;
+  }
+};
+
+export const getMember = async (req, res) => {
+  try {
+    const isMember = await hasMemberPermissions(req.headers.authorization);
+
+    if (!isMember) {
+      res.status(400).json({
+        message: "Invalid access - only an admin can access all members",
+      });
+
+      return;
+    } else {
+      const members = await Member.find();
+
+      res.status(200).json({
+        message: "Successfully retrieved members.",
+        data: members,
+      });
+
+      return;
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error while attempting to retrieve members",
+      error,
+      errCode: AUTH_ERR.AUTH003,
     });
 
     return;
