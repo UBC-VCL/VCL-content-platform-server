@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const snapshotSchema = new Schema(
 	{
 		author: {
-			type: mongoose.ObjectId,
+			type: Schema.Types.ObjectId,
 			ref: 'User',
 			required: true,
 		},
@@ -25,7 +25,7 @@ const snapshotSchema = new Schema(
 		categories: [{ type: String }],
 		descriptions: [{ type: String }],
 		hyperlinks: [{ type: String }],
-		contributors: [{ type: mongoose.ObjectId, ref: 'User' }],
+		contributors: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 	},
 	{
 		timestamps: true,
