@@ -15,11 +15,11 @@ const snapshotControllerTest =  ()=>{
 				method: 'POST',
 				body: {
                     
-					title: 'test',
-					descriptions: ['test'],
+					title: 'npmTest',
+					descriptions: ['npmTest'],
 					hyperlinks: ['test.png'],
 					date: '3000-01-01',
-					project: 'testProject',
+					project: 'npmTest',
 					categories: ['c1'],
 					contributors: [mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')],
 					author: mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')
@@ -30,12 +30,12 @@ const snapshotControllerTest =  ()=>{
 			await createSnapshot(request, response);
 			expect(response._getStatusCode()).toBe(200);
 			const temp = JSON.parse(response._getData());
-			expect(temp.data.title).toBe('test');
+			expect(temp.data.title).toBe('npmTest');
 			expect(temp.data.descriptions.length).toBe(1);
-			expect(temp.data.descriptions[0]).toBe('test');
+			expect(temp.data.descriptions[0]).toBe('npmTest');
 			expect(temp.data.hyperlinks.length).toBe(1);
 			expect(temp.data.hyperlinks[0]).toBe('test.png');
-			expect(temp.data.project).toBe('testProject');
+			expect(temp.data.project).toBe('npmTest');
 			expect(temp.data.categories.length).toBe(1);
 			expect(temp.data.categories[0]).toBe('c1');
 			expect(temp.data.contributors.length).toBe(1);
@@ -51,11 +51,11 @@ const snapshotControllerTest =  ()=>{
 				method: 'POST',
 				body: {
                     
-					title: 'test',
-					descriptions: ['test'],
+					title: 'npmTest',
+					descriptions: ['npmTest'],
 					hyperlinks: ['test.png'],
 					date: '3000-01-01',
-					project: 'testProject',
+					project: 'npmTest',
 					categories: ['c1'],
 					contributors: [mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')],
 					author: mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')
@@ -104,12 +104,12 @@ const snapshotControllerTest =  ()=>{
 		});
 
 		test('should pass', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/snapshots',
 				query: {
-					project: 'testProject'
+					project: 'npmTest'
 				}
 			});
 			const response = httpMocks.createResponse();
@@ -121,7 +121,7 @@ const snapshotControllerTest =  ()=>{
 		});
 
 		test('should pass', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/snapshots',
@@ -140,7 +140,7 @@ const snapshotControllerTest =  ()=>{
 
 	describe('test on get a specific snapshot', ()=>{
 		test('The id passed does not exists', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/snapshots/:id',
@@ -153,7 +153,7 @@ const snapshotControllerTest =  ()=>{
 			expect(response._getStatusCode()).toBe(500);
 		});
 		test('should pass', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/snapshots/:id',
@@ -165,12 +165,12 @@ const snapshotControllerTest =  ()=>{
 			await getSnapshot(request, response);
 			expect(response._getStatusCode()).toBe(200);
 			const temp = JSON.parse(response._getData());
-			expect(temp.data.title).toBe('test');
+			expect(temp.data.title).toBe('npmTest');
 			expect(temp.data.descriptions.length).toBe(1);
-			expect(temp.data.descriptions[0]).toBe('test');
+			expect(temp.data.descriptions[0]).toBe('npmTest');
 			expect(temp.data.hyperlinks.length).toBe(1);
 			expect(temp.data.hyperlinks[0]).toBe('test.png');
-			expect(temp.data.project).toBe('testProject');
+			expect(temp.data.project).toBe('npmTest');
 			expect(temp.data.categories.length).toBe(1);
 			expect(temp.data.categories[0]).toBe('c1');
 			expect(temp.data.contributors.length).toBe(1);
@@ -182,7 +182,7 @@ const snapshotControllerTest =  ()=>{
 	//Need ADMIN_001 user to be present
 	describe('test on update snapshot', ()=>{
 		test('do not have permission. shoud fail', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
@@ -202,7 +202,7 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.message).toBe('Invalid access - must be a user to update a snapshot');
 		});
 		test('pass a dummy id. shoul fail', async()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
@@ -222,7 +222,7 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.message).toBe('Internal server error while attempting to update snapshot');
 		});
 		test('should pass', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
 			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
@@ -240,12 +240,12 @@ const snapshotControllerTest =  ()=>{
 			await updateSnapshot(request, response);
 			expect(response._getStatusCode()).toBe(200);
 			const temp = JSON.parse(response._getData());
-			expect(temp.data.title).toBe('test');
+			expect(temp.data.title).toBe('npmTest');
 			expect(temp.data.descriptions.length).toBe(1);
-			expect(temp.data.descriptions[0]).toBe('test');
+			expect(temp.data.descriptions[0]).toBe('npmTest');
 			expect(temp.data.hyperlinks.length).toBe(1);
 			expect(temp.data.hyperlinks[0]).toBe('test.png');
-			expect(temp.data.project).toBe('testProject');
+			expect(temp.data.project).toBe('npmTest');
 			expect(temp.data.categories.length).toBe(1);
 			expect(temp.data.categories[0]).toBe('c1');
 			expect(temp.data.contributors.length).toBe(1);
@@ -257,7 +257,7 @@ const snapshotControllerTest =  ()=>{
 
 	describe('test on delete snapshots', () => {
 		test('does not have permmission. should fail', async ()=> {
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
@@ -291,7 +291,7 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.message).toBe('Error deleting timeline snapshot from MongoDB');
 		});
 		test('should pass', async()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'test'});
+			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
 			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
@@ -306,12 +306,12 @@ const snapshotControllerTest =  ()=>{
 			await deleteSnapshot(request, response);
 			expect(response._getStatusCode()).toBe(200);
 			const temp = JSON.parse(response._getData());
-			expect(temp.data.title).toBe('test');
+			expect(temp.data.title).toBe('npmTest');
 			expect(temp.data.descriptions.length).toBe(1);
-			expect(temp.data.descriptions[0]).toBe('test');
+			expect(temp.data.descriptions[0]).toBe('npmTest');
 			expect(temp.data.hyperlinks.length).toBe(1);
 			expect(temp.data.hyperlinks[0]).toBe('test.png');
-			expect(temp.data.project).toBe('testProject');
+			expect(temp.data.project).toBe('npmTest');
 			expect(temp.data.categories.length).toBe(1);
 			expect(temp.data.categories[0]).toBe('c1');
 			expect(temp.data.contributors.length).toBe(1);
