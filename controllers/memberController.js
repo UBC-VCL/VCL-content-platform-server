@@ -58,15 +58,6 @@ export const createMember = async (req, res) => {
 
 export const getMember = async (req, res) => {
   try {
-    const isMember = await hasMemberPermissions(req.headers.authorization);
-
-    if (!isMember) {
-      res.status(400).json({
-        message: "Invalid access - only an admin can access all members",
-      });
-
-      return;
-    } else {
       const members = await Member.find();
 
       res.status(200).json({
@@ -75,7 +66,6 @@ export const getMember = async (req, res) => {
       });
 
       return;
-    }
   } catch (error) {
     res.status(500).json({
       message: "Internal server error while attempting to retrieve members",
