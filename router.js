@@ -35,7 +35,7 @@ import {
 } from "./controllers/authController.js";
 
 //MEMBER controller imports
-import { createMember } from "./controllers/memberController.js";
+import { createMember, getMember } from "./controllers/memberController.js";
 
 const router = express.Router();
 
@@ -75,5 +75,6 @@ router.put("/api/users/change_password", changePassword);
 
 // POST route for creating lab member
 router.post("/api/members", createMember);
+router.get("/api/members", getMember);
 
 export default router;
