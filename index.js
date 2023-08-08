@@ -30,7 +30,7 @@ connection.once("open", () => {
 
 app.use("/", router);
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 // Create an HTTPS server
 const httpsServer = https.createServer({
