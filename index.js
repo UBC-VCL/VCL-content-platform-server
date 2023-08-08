@@ -4,19 +4,17 @@ import cors from "cors"; // Allows for Cross Origin Resource Sharing
 import path from "path"; // Useful for path manipulation
 import mongoose from "mongoose"; //Mongoose is a MongoDB library
 import router from "./router.js";
+import https from "https";
 
-let app = express();
+const app = express();
 
 dotenv.config();
 
-//Use CORS and allow JSON requests/responses
 app.use(cors());
 app.use(express.json());
 
-//Get uri from environment variables
 const uri = process.env.ATLAS_URI;
 
-//Start MongoDB connection
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -28,11 +26,15 @@ connection.once("open", () => {
   console.log("MongoDB database connection established successfully");
 });
 
-//Make the the root url the base of the routes for the backend
+
+
 app.use("/", router);
 
 const port = process.env.PORT || 4000;
 
-app.listen(port, () => {
+// Create an HTTPS server
+const httpsServer = https.createServer(app);
+
+httpsServer.listen(port, () => {
   console.log(`App listening on port: ${port}`);
 });
