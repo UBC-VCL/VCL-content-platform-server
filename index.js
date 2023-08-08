@@ -5,7 +5,7 @@ import path from "path"; // Useful for path manipulation
 import mongoose from "mongoose"; //Mongoose is a MongoDB library
 import router from "./router.js";
 import https from "https";
-
+import fs from "fs";
 const app = express();
 
 dotenv.config();
@@ -33,7 +33,10 @@ app.use("/", router);
 const port = process.env.PORT || 4000;
 
 // Create an HTTPS server
-const httpsServer = https.createServer(app);
+const httpsServer = https.createServer({
+  key: fs.readFileSync("key.pem",'utf8' ),
+  cert: fs.readFileSync("cert.pem", 'utf8')
+}, app);
 
 httpsServer.listen(port, () => {
   console.log(`App listening on port: ${port}`);
