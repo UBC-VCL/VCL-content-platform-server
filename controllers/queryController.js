@@ -3,6 +3,16 @@ import User from "../models/user.model.js";
 import Member from "../models/member.model.js";
 import Project from "../models/project.model.js";
 import Snapshot from "../models/snapshot.model.js";
+/**
+ * 
+ * @param Expected request body:
+          {
+            collection: string
+            conditions: ArrayofJson
+          }
+ *
+ * @param Responds with created object.
+ */
 export const postQuery = async (req, res) => {
     
     const {collection, conditions} = req.body;
