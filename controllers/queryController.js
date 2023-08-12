@@ -1,21 +1,21 @@
-import { hasMemberPermissions } from "../helpers/authHelper";
+
 import User from "../models/user.model.js";
 import Member from "../models/member.model.js";
 import Project from "../models/project.model.js";
 import Snapshot from "../models/snapshot.model.js";
-const postQuery = async (req, res) => {
+export const postQuery = async (req, res) => {
     
-    const {collection, conditions} = req.body.collection;
+    const {collection, conditions} = req.body;
     if(!collection) {
         res.status(400).json({
             message: "The database to query on is missing!"
         });
     }
-
+    console.log(conditions);
     switch(collection) {
         case "user":
             User
-                .aggregate(req.conditions)
+                .aggregate(conditions)
                 .exec()
                 .then((data)=>{
                     res.status(200).json({
@@ -31,7 +31,7 @@ const postQuery = async (req, res) => {
             break;
         case "member":
             Member
-                .aggregate(req.conditions)
+                .aggregate(conditions)
                 .exec()
                 .then((data)=>{
                     res.status(200).json({
@@ -47,7 +47,7 @@ const postQuery = async (req, res) => {
             break;
         case "project":
             Project
-                .aggregate(req.conditions)
+                .aggregate(conditions)
                 .exec()
                 .then((data)=>{
                     res.status(200).json({
@@ -63,7 +63,7 @@ const postQuery = async (req, res) => {
             break;
         case "snapshot":
             Snapshot
-                .aggregate(req.conditions)
+                .aggregate(conditions)
                 .exec()
                 .then((data)=>{
                     res.status(200).json({
@@ -84,4 +84,4 @@ const postQuery = async (req, res) => {
         
     }
 
-}
+};

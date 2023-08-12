@@ -37,6 +37,7 @@ import {
 //MEMBER controller imports
 import { createMember, getMember } from "./controllers/memberController.js";
 
+import {postQuery} from "./controllers/queryController.js";
 const router = express.Router();
 
 /**
@@ -76,5 +77,7 @@ router.put("/api/users/change_password", changePassword);
 // POST route for creating lab member
 router.post("/api/members", createMember);
 router.get("/api/members", getMember);
+
+router.post("/api/query", postQuery);
 
 export default router;
