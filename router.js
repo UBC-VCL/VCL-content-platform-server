@@ -78,6 +78,9 @@ router.put("/api/users/change_password", changePassword);
 router.post("/api/members", createMember);
 router.get("/api/members", getMember);
 
+/**
+ * QUERY ENDPOINTS
+ */
 router.post("/api/query", postQuery);
 
 export default router;
