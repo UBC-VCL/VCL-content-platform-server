@@ -37,6 +37,8 @@ import {
 //MEMBER controller imports
 import { createMember, getMember } from "./controllers/memberController.js";
 
+//QUERY controller imports
+import {postQuery}  from "./controllers/queryController.js";
 const router = express.Router();
 
 /**
@@ -77,4 +79,8 @@ router.put("/api/users/change_password", changePassword);
 router.post("/api/members", createMember);
 router.get("/api/members", getMember);
 
+/**
+ * QUERY ENDPOINTS
+ */
+router.post("/api/query", postQuery);
 export default router;
