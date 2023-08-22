@@ -33,6 +33,13 @@ app.use("/", router);
 
 const port = process.env.PORT || 4000;
 
-app.listen(port, () => {
+
+// Create an HTTPS server
+const httpsServer = https.createServer({
+  key: fs.readFileSync("key.pem",'utf8' ),
+  cert: fs.readFileSync("fullchain.pem", 'utf8')
+}, app);
+
+httpsServer.listen(port, () => {
   console.log(`App listening on port: ${port}`);
 });
