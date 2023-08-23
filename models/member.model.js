@@ -5,33 +5,58 @@ const Schema = mongoose.Schema;
 const memberSchema = new Schema(
   {
     // relates member to user. member document doesn't need to have an associated user
-    username: {
-      type: String,
-      trim: true,
-    },
-    projects: [{ type: mongoose.ObjectId, ref: "Project" }],
-    isActive: {
-      type: Boolean,
-      required: true,
-    },
-    firstName: {
-      type: String,
+    name: {
+      type: { firstname: String, lastname: String },
       trim: true,
       required: true,
     },
-    lastName: {
+    project: {
       type: String,
-      trim: true,
-      required: true,
+      required: true
     },
-    email: {
+    position: {
       type: String,
-      trim: true,
+      required: true
     },
-    linkedIn: {
-      type: String,
-      trim: true,
+    contact: {
+      type: {
+        phoneNumber: {
+          type: String,
+          required: false,
+        },
+        linkedIn: {
+          type: String,
+          required: false,
+        },
+        email: {
+          type: String,
+          required: false,
+        },
+        required: true,
+      }
     }
+    // isActive: {
+    //   type: Boolean,
+    //   required: true,
+    // },
+    // firstName: {
+    //   type: String,
+    //   trim: true,
+    //   required: true,
+    // },
+    // lastName: {
+    //   type: String,
+    //   trim: true,
+    //   required: true,
+    // },
+    // email: {
+    //   type: String,
+    //   trim: true,
+    // },
+    // linkedIn: {
+    //   type: String,
+    //   trim: true,
+    // }
   },
   {
     timestamps: true,
