@@ -33,6 +33,10 @@ const memberSchema = new Schema(
           required: false,
         },
         required: true,
+      },
+      message: {
+        type: String,
+        required: false,
       }
     }
     // isActive: {
