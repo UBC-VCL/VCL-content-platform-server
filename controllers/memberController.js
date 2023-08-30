@@ -29,7 +29,7 @@ export const createMember = async (req, res) => {
     await schema.validate(req.body);
   } catch (err) {
     res.status(400).json({
-      message: `Request error: ${err?.errors.join(", ")}`,
+      message: `Request error: wrong shema in request body`,
       error: err,
       errCode: MEMBER_ERR.MEMBER001,
     });
