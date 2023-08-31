@@ -1,6 +1,11 @@
-import * as yup from 'yup';
-import { sendCreateMember } from '../helpers/memberHelper.js';
-import MEMBER_ERR from '../errors/memberErrors.js';
+
+import * as yup from "yup";
+import { sendCreateMember } from "../helpers/memberHelper.js";
+import MEMBER_ERR from "../errors/memberErrors.js";
+import Member from "../models/member.model.js";
+import {
+  hasMemberPermissions
+} from "../helpers/authHelper.js";
 
 /**
  *
@@ -23,13 +28,14 @@ export const createMember = async (req, res) => {
 			isActive: yup.boolean().required('isActive is required'),
 		});
 
-		await schema.validate(req.body);
-	} catch (err) {
-		res.status(400).json({
-			message: `Request error: ${err?.errors.join(', ')}`,
-			error: err,
-			errCode: MEMBER_ERR.MEMBER001,
-		});
+
+    await schema.validate(req.body);
+  } catch (err) {
+    res.status(400).json({
+      message: `Request error: wrong shema in request body`,
+      error: err,
+      errCode: MEMBER_ERR.MEMBER001,
+    });
 
 		return;
 	}
@@ -51,4 +57,25 @@ export const createMember = async (req, res) => {
 
 		return;
 	}
+};
+
+export const getMember = async (req, res) => {
+  try {
+      const members = await Member.find();
+
+      res.status(200).json({
+        message: "Successfully retrieved members.",
+        data: members,
+      });
+
+      return;
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error while attempting to retrieve members",
+      error,
+      errCode: AUTH_ERR.AUTH003,
+    });
+
+    return;
+  }
 };
