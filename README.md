@@ -13,4 +13,4 @@ To create a database user, navigate to the project "Documentation Web-app" on Mo
 
 Note to not use a password that you would normally use with other apps.
 
-4. To start the app locally, run `node index.js` in the root directory. Feel free to use nodemon as well :)
+4. To start the app locally, clone the `development` branch(IMPORTANT: do not use master branch) and run `node index.js` in the root directory. Feel free to use nodemon as well :)
