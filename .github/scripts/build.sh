@@ -18,7 +18,7 @@ docker rmi "$image_id"
 docker build -t vcl_content_platform_backend_https .
 docker run -d -p 5000:5000 vcl_content_platform_backend_https
 
-#anything to comment for testing
+#add testing line
 
 
 
