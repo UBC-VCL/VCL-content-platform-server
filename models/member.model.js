@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -68,5 +68,5 @@ const memberSchema = new Schema(
 );
 
 mongoose.set('useFindAndModify', false);
-const Member = mongoose.model("Member", memberSchema);
+const Member = mongoose.model('Member', memberSchema);
 export default Member;

@@ -10,14 +10,14 @@ import { parse, isValid } from 'date-fns';
  * @example "2022-02-31", "2022-04-31" are not valid dates
  */
 const snapshotValidationSchema = yup.object({
-    date: yup
-    .string()
-    .required("Date is required")
-    .trim()
-    .matches(/^20\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$/, 'Date must be YYYY-MM-DD')
-    .test('valid-date', 'Date must be valid', function(date) {
-        return isValid(parse(date, "yyyy-MM-dd", new Date()));
-    })
+	date: yup
+		.string()
+		.required('Date is required')
+		.trim()
+		.matches(/^20\d\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$/, 'Date must be YYYY-MM-DD')
+		.test('valid-date', 'Date must be valid', function(date) {
+			return isValid(parse(date, 'yyyy-MM-dd', new Date()));
+		})
 })
 
 export default snapshotValidationSchema;
