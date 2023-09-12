@@ -16,5 +16,5 @@ Note to not use a password that you would normally use with other apps.
 
 4. To start the app locally, run `node index.js` in the root directory. Feel free to use nodemon as well :)
 5. To test the app locally, run `npm test` in the root directory. Make sure mongoDB uri is set in `.env` before testing.
-6. after the master branch is merged, please go the Action page to check the state of deployment.
+6. after the master branch is merged, please go Action page to check the state of deployment.
 
