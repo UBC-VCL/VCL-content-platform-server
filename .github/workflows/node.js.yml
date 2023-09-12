@@ -2,7 +2,7 @@ name: Node.js pipeline
 
 on: 
   push:
-    branches: [ eason/add_githubAction ]
+    branches: [ main ]
   
 jobs: 
   run_eslint:
