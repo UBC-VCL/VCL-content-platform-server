@@ -38,6 +38,10 @@ const memberSchema = new Schema(
         type: String,
         required: false,
       }
+    },
+    blurb: {
+      type: String,
+      required: false
     }
     // isActive: {
     //   type: Boolean,
