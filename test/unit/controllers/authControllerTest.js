@@ -8,7 +8,7 @@ import authHelper from '../../../helpers/authHelper.js';
 
 
 const authControllerTest = () => {
-describe('test user auth controller', ()=>{
+	describe('test user auth controller', ()=>{
 		test('send valid user information, should created a user', async () => {
 			const request = httpMocks.createRequest({
 				method: 'POST',

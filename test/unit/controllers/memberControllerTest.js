@@ -10,7 +10,7 @@ const memberControllerTest= ()=>{
 				method: 'POST',
 				url: '/api/members',
 				body:{
-					dummy: "dummy"
+					dummy: 'dummy'
 				}
 			});
 			const response = httpMocks.createResponse();
@@ -23,13 +23,13 @@ const memberControllerTest= ()=>{
 				url: '/api/members',
 				body:{
 					name: {
-						firstname: "npm",
-						lastname: "test"
+						firstname: 'npm',
+						lastname: 'test'
 					},
-					project: "619c08a2fde7a602c72198d4",
-					position: "testposition",
+					project: '619c08a2fde7a602c72198d4',
+					position: 'testposition',
 					contact: {
-						email: "npmtest6@gmail.com"
+						email: 'npmtest6@gmail.com'
 					}
 				}
 			});
@@ -40,18 +40,18 @@ const memberControllerTest= ()=>{
 			expect(temp.data.name.firstname).toBe('npm');
 			expect(temp.data.name.lastname).toBe('test');
 			expect(temp.data.project).toBe('619c08a2fde7a602c72198d4');
-			expect(temp.data.position).toBe("testposition");
-			expect(temp.data.contact.email).toBe("npmtest6@gmail.com");
+			expect(temp.data.position).toBe('testposition');
+			expect(temp.data.contact.email).toBe('npmtest6@gmail.com');
 			// expect(temp.data.projects.length).toBe(1);
 			await Member.deleteOne({
 				name: {
-					firstname: "npm",
-					lastname: "test"
+					firstname: 'npm',
+					lastname: 'test'
 				},
-				project: "619c08a2fde7a602c72198d4",
-				position: "testposition",
+				project: '619c08a2fde7a602c72198d4',
+				position: 'testposition',
 				contact: {
-					email: "npmtest6@gmail.com"
+					email: 'npmtest6@gmail.com'
 				}
 			});
 		});
