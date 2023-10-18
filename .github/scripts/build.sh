@@ -17,8 +17,8 @@ fi
 docker rmi "$image_id"
 docker build -t vcl_content_platform_backend_https .
 docker run -d -p 5000:5000 \
--e IS_WIP = "production" \
--e PORT = 5000 \
+-e IS_WIP="production" \
+-e PORT=5000 \
 vcl_content_platform_backend_https 
 
 #add testing line
