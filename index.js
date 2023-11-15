@@ -9,7 +9,6 @@ import fs from 'fs';
 const app = express();
 
 dotenv.config();
-app.use(cors());
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
@@ -26,8 +25,6 @@ connection.once('open', () => {
 	console.log('MongoDB database connection established successfully');
 });
 
-app.use('/', router);
-const port = process.env.PORT || 4000;
 // Create an HTTPS server
 // const httpsServer = https.createServer({
 // 	key: fs.readFileSync('key.pem','utf8' ),
@@ -37,16 +34,28 @@ const port = process.env.PORT || 4000;
 // 	console.log(`App listening on port: ${port}`);
 // });
 
+
 if (IS_WIP) {
-	
+	const corsOptions = {
+		origin: 'https://www.vcl.psych.ubc.ca',
+	  };
+	app.use(cors(corsOptions));
+
+	app.use('/', router);
+	const port = process.env.PORT || 4000;
+
 	const httpsServer = https.createServer({
-		key: fs.readFileSync('key.pem','utf8' ),
+		key: fs.readFileSync('key.pem', 'utf8'),
 		cert: fs.readFileSync('fullchain.pem', 'utf8')
 	}, app);
 	httpsServer.listen(port, () => {
 		console.log(`App listening on port: ${port}`);
 	});
 } else {
+	app.use(cors());
+	app.use('/', router);
+	const port = process.env.PORT || 4000;
+
 	app.listen(port, () => {
 		console.log(`App listening on port: ${port}`);
 	});
