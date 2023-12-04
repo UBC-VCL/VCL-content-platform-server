@@ -1,5 +1,5 @@
 import SNAPSHOT_ERR from '../errors/snapshotErrors.js';
-import { hasMemberPermissions } from '../helpers/authHelper.js';
+import { hasFrontendAPIKey } from '../helpers/authHelper.js';
 import Snapshot from '../models/snapshot.model.js';
 import User from '../models/user.model.js';
 
@@ -25,7 +25,7 @@ import User from '../models/user.model.js';
  */
 export const createSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -79,7 +79,7 @@ export const createSnapshot = async (req, res) => {
  *                 objects based on query parameters
  */
 export const getAllSnapshots = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({
@@ -123,7 +123,7 @@ export const getAllSnapshots = async (req, res) => {
  */
 export const deleteSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -161,7 +161,7 @@ export const deleteSnapshot = async (req, res) => {
  */
 
 export const getSnapshot = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({
@@ -206,7 +206,7 @@ request url parameter: id - ID of the timeline snapshot to update
 
 export const updateSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({

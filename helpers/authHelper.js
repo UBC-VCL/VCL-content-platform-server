@@ -25,10 +25,21 @@ const checkAccessToken = async (access_token) => {
 	};
 };
 
-export const hasMemberPermissions = async (accessToken) => {
-	const token = await checkAccessToken(accessToken);
-	return token.isValidToken && USER_TYPE_NAMES.includes(token.userPermissions);
+export const hasFrontendAPIKey = async (accessToken) => {
+	let isValidToken = false;
+	//console.log(accessToken);
+
+	if (accessToken === process.env.FRONTEND_API_KEY) {
+		isValidToken = true;
+	}
+
+	return isValidToken;
 };
+
+// export const hasMemberPermissions = async (accessToken) => {
+// 	const token = await checkAccessToken(accessToken);
+// 	return token.isValidToken && USER_TYPE_NAMES.includes(token.userPermissions);
+// };
 
 export const hasAdminPermissions = async (accessToken) => {
 	const token = await checkAccessToken(accessToken);
@@ -58,7 +69,7 @@ export const sendCreateUser = async (user) => {
 }
 
 const authHelper = {
-	hasMemberPermissions,
+	hasMemberPermissions: hasFrontendAPIKey,
 	hasAdminPermissions,
 	sendCreateUser
 

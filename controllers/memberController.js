@@ -5,7 +5,7 @@ import MEMBER_ERR from '../errors/memberErrors.js';
 import AUTH_ERR from '../errors/authErrors.js';
 import Member from '../models/member.model.js';
 import {
-	hasMemberPermissions
+	hasFrontendAPIKey
 } from '../helpers/authHelper.js';
 
 /**
@@ -14,7 +14,7 @@ import {
  * @param Responds with created user.
  */
 export const createMember = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({
@@ -72,7 +72,7 @@ export const createMember = async (req, res) => {
 };
 
 export const getMember = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({

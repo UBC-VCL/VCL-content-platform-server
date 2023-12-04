@@ -1,13 +1,13 @@
 import PROJECT_ERR from '../errors/projectErrors.js';
 import Project from '../models/project.model.js';
-import { hasMemberPermissions } from '../helpers/authHelper.js';
+import { hasFrontendAPIKey } from '../helpers/authHelper.js';
 
 /**
  * Create a new Project
  */
 export const createProject = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -47,7 +47,7 @@ export const createProject = async (req, res) => {
  * Get all Projects
  */
 export const getProjects = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({
@@ -78,7 +78,7 @@ export const getProjects = async (req, res) => {
  * Get a single Project, identified by name
  */
 export const getProject = async (req, res) => {
-	const isMember = await hasMemberPermissions(req.headers.authorization);
+	const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 	if (!isMember) {
 		res.status(400).json({
@@ -108,7 +108,7 @@ export const getProject = async (req, res) => {
  */
 export const updateProject = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -144,7 +144,7 @@ export const updateProject = async (req, res) => {
  */
 export const deleteProject = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
