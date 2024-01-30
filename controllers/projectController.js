@@ -1,13 +1,13 @@
 import PROJECT_ERR from '../errors/projectErrors.js';
 import Project from '../models/project.model.js';
-import { hasFrontendAPIKey } from '../helpers/authHelper.js';
+import { hasMemberPermissions } from '../helpers/authHelper.js';
 
 /**
  * Create a new Project
  */
 export const createProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		const isMember = await hasMemberPermissions(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -47,59 +47,39 @@ export const createProject = async (req, res) => {
  * Get all Projects
  */
 export const getProjects = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access all projects',
-		});
-
-		return;
-	} else {
-		await Project.find()
-			.exec()
-			.then((data) => {
-				res.status(200).json({
-					message: 'Successfully retrieved all Projects',
-					data,
-				});
-			})
-			.catch((error) => {
-				res.status(500).json({
-					message: 'Error while getting all Projects from MongoDB',
-					error,
-					errCode: PROJECT_ERR.PROJECT002,
-				});
+	await Project.find()
+		.exec()
+		.then((data) => {
+			res.status(200).json({
+				message: 'Successfully retrieved all Projects',
+				data,
 			});
-	}
+		})
+		.catch((error) => {
+			res.status(500).json({
+				message: 'Error while getting all Projects from MongoDB',
+				error,
+				errCode: PROJECT_ERR.PROJECT002,
+			});
+		});
 };
 
 /**
  * Get a single Project, identified by name
  */
 export const getProject = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
+	try {
+		const name = req.params.name;
+		const project = await Project.findOne({ name });
 
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access a project',
-		});
-
-		return;
-	} else {
-		try {
-			const name = req.params.name;
-			const project = await Project.findOne({ name });
-
-			if (project) {
-				res.status(200).json({
-					message: `Successfully retrieved project ${name}`,
-					data: project,
-				});
-			} else throw `Could not find project with name: ${name}`;
-		} catch (error) {
-			res.status(400).json({ message: error });
-		}
+		if (project) {
+			res.status(200).json({
+				message: `Successfully retrieved project ${name}`,
+				data: project,
+			});
+		} else throw `Could not find project with name: ${name}`;
+	} catch (error) {
+		res.status(400).json({ message: error });
 	}
 };
 
@@ -108,7 +88,7 @@ export const getProject = async (req, res) => {
  */
 export const updateProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		const isMember = await hasMemberPermissions(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -117,7 +97,7 @@ export const updateProject = async (req, res) => {
 		} else {
 			try {
 				const name = req.params.name;
-				const updatedProject = await Project.findOneAndUpdate({ name: name }, req.body, {
+				const updatedProject = await Project.findOneAndUpdate({name: name}, req.body, {
 					new: true,
 				});
 				if (updatedProject) {
@@ -144,7 +124,7 @@ export const updateProject = async (req, res) => {
  */
 export const deleteProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		const isMember = await hasMemberPermissions(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
