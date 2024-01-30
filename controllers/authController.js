@@ -4,7 +4,7 @@ import User from '../models/user.model.js';
 import AUTH_ERR from '../errors/authErrors.js';
 import {
 	hasAdminPermissions,
-	hasMemberPermissions,
+	hasFrontendAPIKey,
 	sendCreateUser,
 } from '../helpers/authHelper.js';
 
@@ -253,7 +253,7 @@ export const refreshToken = async (req, res) => {
  */
 export const logoutUser = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -298,7 +298,7 @@ export const logoutUser = async (req, res) => {
  */
 export const changeUsername = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({
@@ -343,7 +343,7 @@ export const changeUsername = async (req, res) => {
  */
 export const changePassword = async (req, res) => {
 	try {
-		const isMember = await hasMemberPermissions(req.headers.authorization);
+		const isMember = await hasFrontendAPIKey(req.headers.authorization);
 
 		if (!isMember) {
 			res.status(400).json({

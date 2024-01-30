@@ -2,6 +2,7 @@ import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import { USER_TYPES, USER_TYPE_NAMES } from './types.js';
+import {sha384} from 'crypto-hash';
 
 // Checks if access token is valid
 // returns obj: {
@@ -25,10 +26,22 @@ const checkAccessToken = async (access_token) => {
 	};
 };
 
-export const hasMemberPermissions = async (accessToken) => {
-	const token = await checkAccessToken(accessToken);
-	return token.isValidToken && USER_TYPE_NAMES.includes(token.userPermissions);
+export const hasFrontendAPIKey = async (accessToken) => {
+	let isValidToken = false;
+
+	let hashedKey = await sha384(process.env.FRONTEND_API_KEY);
+
+	if (accessToken === hashedKey) {
+		isValidToken = true;
+	}
+
+	return isValidToken;
 };
+
+// export const hasMemberPermissions = async (accessToken) => {
+// 	const token = await checkAccessToken(accessToken);
+// 	return token.isValidToken && USER_TYPE_NAMES.includes(token.userPermissions);
+// };
 
 export const hasAdminPermissions = async (accessToken) => {
 	const token = await checkAccessToken(accessToken);
@@ -58,7 +71,7 @@ export const sendCreateUser = async (user) => {
 }
 
 const authHelper = {
-	hasMemberPermissions,
+	hasMemberPermissions: hasFrontendAPIKey,
 	hasAdminPermissions,
 	sendCreateUser
 

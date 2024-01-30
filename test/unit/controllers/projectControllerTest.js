@@ -72,7 +72,9 @@ const projectControllerTest = ()=>{
 	//TODO: when does error code 500 appear
 	describe('test on get projects', ()=>{
         
-		test('ahoud pass', async ()=> {
+		test('should pass', async ()=> {
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const expectedCount = await Project.count();
 			const request = httpMocks.createRequest({
 				method: 'GET',
@@ -84,11 +86,43 @@ const projectControllerTest = ()=>{
 			const temp = JSON.parse(response._getData());
 			expect(temp.data.length).toBe(expectedCount);
 		});
+
+		test('does not have membership permission, should fail', async ()=> {
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/projects'
+			});
+			const response = httpMocks.createResponse();
+			await getProjects(request, response);
+			expect(response._getStatusCode()).toBe(400);
+			const temp = JSON.parse(response._getData());
+			expect(temp.message).toBe('Invalid access - must be a member to access all projects');
+		});
             
 	});
 
 	describe('test on get project', ()=>{
+		test('No member permissions, should fail', async ()=> {
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/projects',
+				params:{
+					name: 'test'
+				}
+			});
+			const response = httpMocks.createResponse();
+			await getProject(request, response);
+			expect(response._getStatusCode()).toBe(400);
+			const temp = JSON.parse(response._getData());
+			expect(temp.message).toBe('Invalid access - must be a member to access a project');
+		});
 		test('Pass a dummy user, should fail', async ()=> {
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/projects',
@@ -101,6 +135,8 @@ const projectControllerTest = ()=>{
 			expect(response._getStatusCode()).toBe(400);
 		});
 		test('should pass', async ()=> {
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/projects',
