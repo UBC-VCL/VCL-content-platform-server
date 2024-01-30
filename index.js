@@ -9,11 +9,19 @@ import fs from 'fs';
 const app = express();
 
 dotenv.config();
-app.use(cors());
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
 const IS_WIP = process.env.IS_WIP === 'production';
+
+if (IS_WIP) {
+	app.use(cors({
+		credentials: true,
+		origin: 'https://www.vcl.psych.ubc.ca/',
+	}));
+} else {
+	app.use(cors());
+}
 
 mongoose.connect(uri, {
 	useNewUrlParser: true,
@@ -38,7 +46,6 @@ const port = process.env.PORT || 4000;
 // });
 
 if (IS_WIP) {
-	
 	const httpsServer = https.createServer({
 		key: fs.readFileSync('key.pem','utf8' ),
 		cert: fs.readFileSync('fullchain.pem', 'utf8')
