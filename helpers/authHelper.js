@@ -71,7 +71,7 @@ export const sendCreateUser = async (user) => {
 }
 
 const authHelper = {
-	hasMemberPermissions: hasFrontendAPIKey,
+	hasFrontendAPIKey,
 	hasAdminPermissions,
 	sendCreateUser
 

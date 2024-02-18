@@ -41,14 +41,14 @@ import { createMember, getMember } from './controllers/memberController.js';
 
 //QUERY controller imports
 import { postQuery } from './controllers/queryController.js';
-import resourceValidationSchema from "validations/models/resourceValidation.model.js";
+import resourceValidationSchema from 'validations/models/resourceValidation.model.js';
 import {
-  createResource,
-  deleteResource,
-  getResource,
-  getResourcesInCategory,
-  updateResource,
-} from "controllers/resourceController.js";
+	createResource,
+	deleteResource,
+	getResource,
+	getResourcesInCategory,
+	updateResource,
+} from 'controllers/resourceController.js';
 const router = express.Router();
 
 /**

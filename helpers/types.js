@@ -7,7 +7,7 @@ export const USER_TYPE_NAMES = Object.values(USER_TYPES);
 
 // TODO populate this constant with values when resource categories known
 const RESOURCE_CATEGORIES = {
-  // the different resource categories
+	// the different resource categories
 };
 
 // TODO add resource category name check to validator once RESOURCE_CATEGORIES is populated

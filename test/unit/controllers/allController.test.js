@@ -43,8 +43,10 @@ import memberControllerTest from './memberControllerTest.js';
 import authControllerTest from './authControllerTest.js';
 import projectControllerTest from './projectControllerTest.js';
 import snapshotControllerTest from './snapshotControllerTest.js';
+import resourceControllerTest from './resourceControllerTest.js';
 
 memberControllerTest();
 authControllerTest();
 projectControllerTest();
 snapshotControllerTest();
+resourceControllerTest();
