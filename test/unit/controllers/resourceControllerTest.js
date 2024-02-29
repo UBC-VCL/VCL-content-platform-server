@@ -19,7 +19,7 @@ const resourceControllerTest = () => {
 		let mockHasMemberPermissions;
 		let mockHasAdminPermissions;
 		let resourceId;
-		let memberId;
+		let userId;
 	
 		beforeAll(async () => {
 			try {
@@ -39,10 +39,10 @@ const resourceControllerTest = () => {
 						email: 'npmtest6@gmail.com',
 					},
 				})
-				memberId = member._id.toString();
+				let memberId = member._id.toString();
 		
 				console.log('Creating users for resource tests');
-				await sendCreateUser({
+				userId = await sendCreateUser({
 					username: 'resourceUser',
 					password: 'resourceUser',
 					permissions: 'default_user',
@@ -102,7 +102,11 @@ const resourceControllerTest = () => {
 					body: {
 						title: 'test_title',
 						description: 'test_description',
-						category: 'COGS 402',
+						category: {
+							main: 'COGS 402',
+							sub: new Date().getFullYear().toString(),
+						},
+						author: 'Resource Test',
 						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
@@ -113,14 +117,16 @@ const resourceControllerTest = () => {
 	
 				expect(response._getStatusCode()).toBe(200);
 				const temp = JSON.parse(response._getData());
+				resourceId = temp.data._id;
 	
 				expect(temp.message).toBe('Successfully created new resource');
 				expect(temp.data.title).toBe('test_title');
 				expect(temp.data.description).toBe('test_description');
-				expect(temp.data.category).toBe('COGS 402');
-				expect(temp.data.owner).toBe(memberId);
+				expect(temp.data.category.main).toBe('COGS 402');
+				expect(temp.data.category.sub).toBe(new Date().getFullYear().toString());
+				expect(temp.data.author).toBe('Resource Test');
+				expect(temp.data.owner.username).toBe('resourceUser');
 				expect(temp.data.resource_link).toBe('https://www.google.com');
-				resourceId = temp.data._id;
 			});
 	
 			test('no permissions, not a member', async () => {
@@ -132,7 +138,11 @@ const resourceControllerTest = () => {
 					body: {
 						title: 'test_title',
 						description: 'test_description',
-						category: 'COGS 402',
+						category: {
+							main: 'COGS 402',
+							sub: '2024',
+						},
+						author: 'Resource Test',
 						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
@@ -156,7 +166,11 @@ const resourceControllerTest = () => {
 					body: {
 						title: 'test_title',
 						description: 'test_description',
-						category: 'COGS 402',
+						category: {
+							main: 'COGS 402',
+							sub: '2024',
+						},
+						author: 'Resource Test',
 						username: 'bad_username',
 						resource_link: 'https://www.google.com',
 					},
@@ -178,8 +192,54 @@ const resourceControllerTest = () => {
 		});
 	
 		describe('test get resources in category', () => {
+			beforeAll(async () => {
+				console.log('Creating data for getAllResourcesInCategory');
+				const prevYearResource = new Resource({
+					title: 'prevYear',
+					description: 'description',
+					category: {
+						main: 'COGS 402',
+						sub: (new Date().getFullYear() - 1).toString(),
+					},
+					author: 'Resource Test',
+					owner: userId,
+					resource_link: 'https://www.google.com',
+				});
+				await prevYearResource.save();
+				const postYearResource = new Resource({
+					title: 'postYear',
+					description: 'description',
+					category: {
+						main: 'COGS 402',
+						sub: (new Date().getFullYear() + 1).toString(),
+					},
+					author: 'Resource Test',
+					owner: userId,
+					resource_link: 'https://www.google.com',
+				});
+				await postYearResource.save();
+			});
+
+			afterAll(async () => {
+				console.log('Deleting data for getAllResourcesInCategory');
+				await Resource.deleteOne({title: 'prevYear'});
+				await Resource.deleteOne({title: 'postYear'});
+			})
+
 			test('should pass', async () => {
-				const expectedCount = await Resource.countDocuments({ category: 'COGS 402' });
+				const resourceAggregateArray = await Resource.aggregate([
+					{
+						$match:	{
+							'category.main': 'COGS 402'
+						}
+					},
+					{
+						$group: {
+							_id: '$category.sub'
+						}
+					}
+			]);
+			const expectedCount = resourceAggregateArray.length;
 				const request = httpMocks.createRequest({
 					method: 'GET',
 					url: '/api/resources/:category',
@@ -195,6 +255,10 @@ const resourceControllerTest = () => {
 				const temp = JSON.parse(response._getData());
 	
 				expect(temp.data.length).toBe(expectedCount);
+				var yearOffSet = 1;
+				temp.data.forEach((subCatArr) => {
+					expect(subCatArr[0].category.sub).toBe((new Date().getFullYear() + yearOffSet--).toString());
+				})
 				expect(temp.message).toBe(
 					'Successfully retrieved all Resources in category'
 				);
@@ -222,11 +286,13 @@ const resourceControllerTest = () => {
 				);
 				expect(temp.data.title).toBe('test_title');
 				expect(temp.data.description).toBe('test_description');
-				expect(temp.data.category).toBe('COGS 402');
-				expect(temp.data.owner.name.firstname).toBe('resource');
-				expect(temp.data.owner.name.lastname).toBe('test');
+				expect(temp.data.category.main).toBe('COGS 402');
+				expect(temp.data.category.sub).toBe(new Date().getFullYear().toString());
+				expect(temp.data.author).toBe('Resource Test');
+				expect(temp.data.owner.username).toBe('resourceUser');
 				expect(temp.data.resource_link).toBe('https://www.google.com');
 			});
+
 			test('resource with id doesn\'t exist', async () => {
 				const request = httpMocks.createRequest({
 					method: 'GET',
@@ -259,13 +325,15 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'resourceAdmin',
-					},
 					body: {
 						title: 'change_name_test',
 						description: 'change_desc',
-						category: 'Skills Workshops',
+						category: {
+							main: 'Skills Workshops',
+							sub: 'Coding'
+						},
+						author: 'New Author',
+						username: 'resourceAdmin',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
@@ -279,11 +347,13 @@ const resourceControllerTest = () => {
 				expect(temp.message).toBe('Successfully updated resource');
 				expect(temp.data.title).toBe('change_name_test');
 				expect(temp.data.description).toBe('change_desc');
-				expect(temp.data.category).toBe('Skills Workshops');
-				expect(temp.data.owner.name.firstname).toBe('resource');
-				expect(temp.data.owner.name.lastname).toBe('test');
+				expect(temp.data.category.main).toBe('Skills Workshops');
+				expect(temp.data.category.sub).toBe('Coding');
+				expect(temp.data.author).toBe('New Author');
+				expect(temp.data.owner.username).toBe('resourceUser');
 				expect(temp.data.resource_link).toBe('https://www.youtube.com');
 			});
+
 			test('update as resource owner, should pass', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
@@ -294,13 +364,15 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'resourceUser',
-					},
 					body: {
 						title: 'title',
 						description: 'description',
-						category: 'COGS 402',
+						category: {
+							main: 'COGS 402',
+							sub: (new Date().getFullYear() + 1).toString(),
+						},
+						author: 'Resource Test',
+						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
 				});
@@ -316,11 +388,13 @@ const resourceControllerTest = () => {
 				expect(temp.message).toBe('Successfully updated resource');
 				expect(temp.data.title).toBe('title');
 				expect(temp.data.description).toBe('description');
-				expect(temp.data.category).toBe('COGS 402');
-				expect(temp.data.owner.name.firstname).toBe('resource');
-				expect(temp.data.owner.name.lastname).toBe('test');
+				expect(temp.data.category.main).toBe('COGS 402');
+				expect(temp.data.category.sub).toBe((new Date().getFullYear() + 1).toString());
+				expect(temp.data.author).toBe('Resource Test');
+				expect(temp.data.owner.username).toBe('resourceUser');
 				expect(temp.data.resource_link).toBe('https://www.google.com');
 			});
+
 			test('update not the owner or an admin, should fail', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
@@ -331,13 +405,15 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'notOwnerNotAdmin',
-					},
 					body: {
 						title: 'change_name_test',
 						description: 'change_desc',
-						category: 'Skills Workshops',
+						category: {
+							main: 'Skills Workshops',
+							sub: 'Coding'
+						},
+						author: 'New Author',
+						username: 'notOwnerNotAdmin',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
@@ -352,6 +428,7 @@ const resourceControllerTest = () => {
 					'Invalid access - must be either owner of resource or an admin to update a resource'
 				);
 			});
+
 			test('not a user, should fail', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(false));
 	
@@ -361,13 +438,15 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'notMember',
-					},
 					body: {
 						title: 'change_name_test',
 						description: 'change_desc',
-						category: 'Skills Workshops',
+						category: {
+							main: 'Skills Workshops',
+							sub: 'Coding'
+						},
+						author: 'New Author',
+						username: 'notMember',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
@@ -382,6 +461,7 @@ const resourceControllerTest = () => {
 					'Invalid access - must be a member to update a resource'
 				);
 			});
+
 			test('non-existent resource id, should fail', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 	
@@ -391,13 +471,15 @@ const resourceControllerTest = () => {
 					params: {
 						id: '5f85fd2f0ab7c11e186f146b',
 					},
-					headers: {
-						user: 'resourceUser',
-					},
 					body: {
 						title: 'change_name_test',
 						description: 'change_desc',
-						category: 'Skills Workshops',
+						category: {
+							main: 'Skills Workshops',
+							sub: 'Coding'
+						},
+						author: 'New Author',
+						username: 'resourceUser',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
@@ -425,8 +507,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'notOwnerNotAdmin',
+					body: {
+						username: 'notOwnerNotAdmin',
 					},
 				});
 	
@@ -440,6 +522,7 @@ const resourceControllerTest = () => {
 					'Invalid access - must be either owner of resource or an admin to delete a resource'
 				);
 			});
+
 			test('send non-existent resource id, should fail', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				const request = httpMocks.createRequest({
@@ -448,8 +531,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: '5f85fd2f0ab7c11e186f146b',
 					},
-					headers: {
-						user: 'resourceUser',
+					body: {
+						username: 'resourceUser',
 					},
 				});
 	
@@ -463,6 +546,7 @@ const resourceControllerTest = () => {
 					'Could not find resource with id 5f85fd2f0ab7c11e186f146b to delete'
 				);
 			});
+
 			test('not a user, should fail', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(false));
 	
@@ -472,8 +556,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'notMember',
+					body: {
+						username: 'notMember',
 					},
 				});
 	
@@ -487,6 +571,7 @@ const resourceControllerTest = () => {
 					'Invalid access - must be a member to delete a resource'
 				);
 			});
+
 			test('delete as owner, should pass', async () => {
 				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
@@ -497,8 +582,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						user: 'resourceUser',
+					body: {
+						username: 'resourceUser',
 					},
 				});
 	
@@ -510,6 +595,7 @@ const resourceControllerTest = () => {
 	
 				expect(temp.message).toBe('Successfully deleted resource');
 			});
+
 			test('delete as admin, should pass', async () => {
 				mockHasMemberPermissions.mockReturnValue(Promise.resolve(true));
 				mockHasAdminPermissions.mockReturnValue(Promise.resolve(true));
@@ -520,7 +606,11 @@ const resourceControllerTest = () => {
 					body: {
 						title: 'test_title',
 						description: 'test_description',
-						category: 'COGS 402',
+						category: {
+							main: 'COGS 402',
+							sub: '2024',
+						},
+						author: 'Resource Test',
 						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
@@ -536,8 +626,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: resource.data._id,
 					},
-					headers: {
-						user: 'resourceAdmin',
+					body: {
+						username: 'resourceAdmin',
 					},
 				});
 	

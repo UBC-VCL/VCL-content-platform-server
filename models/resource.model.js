@@ -17,12 +17,23 @@ const resourceSchema = new Schema(
 			trim: true,
 		},
 		category: {
+			type: {
+				main: {
+					type: String,
+					required: true,
+				},
+				sub: {
+					type: String,
+				}
+			},
+		},
+		author: {
 			type: String,
 			required: true,
 		},
 		owner: {
 			type: mongoose.ObjectId,
-			ref: 'Member',
+			ref: 'User',
 			required: true,
 		},
 		resource_link: {

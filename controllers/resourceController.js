@@ -5,7 +5,8 @@ import {
 } from '../helpers/authHelper.js';
 import RESOURCE_ERR from '../errors/resourceErrors.js';
 import User from '../models/user.model.js';
-import { isResourceOwner } from '../helpers/resourceHelper.js';
+import { isResourceOwner, separateSubCategories } from '../helpers/resourceHelper.js';
+import * as yup from 'yup';
 
 /**
  *
@@ -13,7 +14,11 @@ import { isResourceOwner } from '../helpers/resourceHelper.js';
  *        {
  *          title: string,
  *          description: string,
- *          category: string,
+ *          category: {
+ * 						main: string,
+ * 						sub: string,
+ * 					},
+ * 					author: string,
  *          username: string,
  *          resource_link: string,
  *        }
@@ -34,22 +39,24 @@ export const createResource = async (req, res) => {
 			return;
 		}
 
-		const { title, description, category, username, resource_link } = req.body;
+		const { title, description, category, author, username, resource_link } = req.body;
 		const ownerUser = await User.findOne({ username: username });
 		if (!ownerUser) {
 			throw 'logged in user could not be found, when it should have been.';
 		}
 
-		const owner = ownerUser.member;
+		const owner = ownerUser._id;
 		const newResource = new Resource({
 			title,
 			description,
 			category,
+			author,
 			owner,
 			resource_link,
 		});
 
-		await newResource.save().then((data) => {
+		await newResource.save().then(async (data) => {
+			await data.populate('owner', 'username').execPopulate();
 			res.status(200).json({
 				message: 'Successfully created new resource',
 				data,
@@ -74,14 +81,15 @@ export const createResource = async (req, res) => {
  */
 export const getResourcesInCategory = async (req, res) => {
 	// TODO call isValidResourceCategory
-
-	await Resource.find({ category: req.params.category })
+	await Resource.find({ 'category.main': req.params.category })
+		.sort('-category.sub -createdAt')
 		.populate({ path: 'owner', select: 'name' })
 		.exec()
 		.then((data) => {
+			const formatedData = separateSubCategories(data);
 			res.status(200).json({
 				message: 'Successfully retrieved all Resources in category',
-				data,
+				data: formatedData,
 			});
 		})
 		.catch((error) => {
@@ -104,7 +112,7 @@ export const getResourcesInCategory = async (req, res) => {
 export const getResource = async (req, res) => {
 	const id = req.params.id;
 	await Resource.findOne({ _id: id })
-		.populate({ path: 'owner', select: 'name' })
+		.populate({ path: 'owner', select: 'username' })
 		.exec()
 		.then((data) => {
 			if (data) {
@@ -137,13 +145,18 @@ export const getResource = async (req, res) => {
  *        {
  *          title: string,
  *          description: string,
- *          category: string,
+ *          category: {
+ * 						main: string,
+ * 						sub: string,
+ * 					},
+ * 					author: string,
+ * 					username: string,
  *          resource_link: string,
  *        }
  * @param Expected request headers:
  *        {
  *          authorization: string,
- *          user: string,
+ *          
  *        }
  * @param Responds with status code and messsage.
  */
@@ -160,8 +173,9 @@ export const updateResource = async (req, res) => {
 		}
 
 		const id = req.params.id;
+		const { username } = req.body;
 		try {
-			const isOwner = await isResourceOwner(id, req.headers.user);
+			const isOwner = await isResourceOwner(id, username);
 			if (!isOwner && !isAdmin) {
 				res.status(400).json({
 					message:
@@ -180,12 +194,12 @@ export const updateResource = async (req, res) => {
 			}
 		}
 
-		const { title, description, category, resource_link } = req.body;
+		const { title, description, category, author, resource_link } = req.body;
 		const updatedResource = await Resource.findOneAndUpdate(
 			{ _id: id },
-			{ title, description, category, resource_link },
+			{ title, description, category, author, resource_link },
 			{ new: true }
-		).populate({ path: 'owner', select: 'name' });
+		).populate({ path: 'owner', select: 'username' });
 		if (updatedResource) {
 			res.status(200).json({
 				message: 'Successfully updated resource',
@@ -211,10 +225,13 @@ export const updateResource = async (req, res) => {
  *        {
  *          id: mongoose.ObjectId (id of resource),
  *        }
+ * @param Expected request body:
+ * 				{
+ *          username: string,
+ * 				}
  * @param Expected request headers:
  *        {
  *          authorization: string,
- *          user: string,
  *        }
  * @param Responds with status code and messsage.
  */
@@ -231,8 +248,18 @@ export const deleteResource = async (req, res) => {
 		}
 
 		const id = req.params.id;
+		const { username } = req.body;
 		try {
-			const isOwner = await isResourceOwner(id, req.headers.user);
+			const schema = yup.object().shape({username: yup.string().required()});
+			schema.validate(req.body);
+		} catch (error) {
+			res.status(400).json({
+				message: 'Validation failed - username provided wasn\'t a string'
+			})
+		}
+		
+		try {
+			const isOwner = await isResourceOwner(id, username);
 			if (!isOwner && !isAdmin) {
 				res.status(400).json({
 					message:
