@@ -507,7 +507,7 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					body: {
+					headers: {
 						username: 'notOwnerNotAdmin',
 					},
 				});
@@ -531,7 +531,7 @@ const resourceControllerTest = () => {
 					params: {
 						id: '5f85fd2f0ab7c11e186f146b',
 					},
-					body: {
+					headers: {
 						username: 'resourceUser',
 					},
 				});
@@ -556,7 +556,7 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					body: {
+					headers: {
 						username: 'notMember',
 					},
 				});
@@ -582,7 +582,7 @@ const resourceControllerTest = () => {
 					params: {
 						id: resourceId,
 					},
-					body: {
+					headers: {
 						username: 'resourceUser',
 					},
 				});
@@ -626,7 +626,7 @@ const resourceControllerTest = () => {
 					params: {
 						id: resource.data._id,
 					},
-					body: {
+					headers: {
 						username: 'resourceAdmin',
 					},
 				});

@@ -1,4 +1,4 @@
-import { CAREER_WORKSHOPS_SUBCATEGORIES_NAMES, RESOURCE_CATEGORIES, RESOURCE_CATEGORIES_NAMES, SKILLS_WORKSHOPS_SUBCATEGORIES_NAMES } from 'helpers/types';
+import { CAREER_WORKSHOPS_SUBCATEGORIES_NAMES, RESOURCE_CATEGORIES, RESOURCE_CATEGORIES_NAMES, RESOURCE_CATEGORIES_WITH_SUBCATEGORIES, SKILLS_WORKSHOPS_SUBCATEGORIES_NAMES } from '../../helpers/types.js';
 import * as yup from 'yup';
 
 const resourceValidationSchema = yup.object({
@@ -7,7 +7,7 @@ const resourceValidationSchema = yup.object({
 	category: yup.object().shape({
 		main: yup.string().oneOf(RESOURCE_CATEGORIES_NAMES).required(),
 		sub: yup.string().when(['category', 'main'], {
-			is: false,
+			is: main => RESOURCE_CATEGORIES_WITH_SUBCATEGORIES.includes(main),
 			then: yup.string().when(['category', 'main'], {
 				is: main => main === RESOURCE_CATEGORIES.CAREER_WORKSHOPS,
 				then: yup.string().oneOf(CAREER_WORKSHOPS_SUBCATEGORIES_NAMES).required(),

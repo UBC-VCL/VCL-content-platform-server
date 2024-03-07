@@ -4,11 +4,22 @@
  */
 const validate = (schema) => async (req, res, next) => {
 	try {
-		await schema.validate(req.body);
+		req.body = await schema.validate(req.body);
+		console.log(req.body);
 		next();
 	} catch (error) {
 		return res.status(400).json({ error });
 	}
 };
+
+// export const validateResource = (schema) => async (req, res, next) => {
+// 	try {
+// 		req.body = await schema.validate(req.body);
+// 		console.log(req.body);
+// 		next();
+// 	} catch (error) {
+// 		return res.status(400).json({ error });
+// 	}
+// }
 
 export default validate;

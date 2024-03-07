@@ -83,7 +83,7 @@ export const getResourcesInCategory = async (req, res) => {
 	// TODO call isValidResourceCategory
 	await Resource.find({ 'category.main': req.params.category })
 		.sort('-category.sub -createdAt')
-		.populate({ path: 'owner', select: 'name' })
+		.populate({ path: 'owner', select: 'username' })
 		.exec()
 		.then((data) => {
 			const formatedData = separateSubCategories(data);
@@ -225,13 +225,10 @@ export const updateResource = async (req, res) => {
  *        {
  *          id: mongoose.ObjectId (id of resource),
  *        }
- * @param Expected request body:
- * 				{
- *          username: string,
- * 				}
  * @param Expected request headers:
  *        {
  *          authorization: string,
+ * 					username: string,
  *        }
  * @param Responds with status code and messsage.
  */
@@ -248,15 +245,7 @@ export const deleteResource = async (req, res) => {
 		}
 
 		const id = req.params.id;
-		const { username } = req.body;
-		try {
-			const schema = yup.object().shape({username: yup.string().required()});
-			schema.validate(req.body);
-		} catch (error) {
-			res.status(400).json({
-				message: 'Validation failed - username provided wasn\'t a string'
-			})
-		}
+		const username = req.headers.username;
 		
 		try {
 			const isOwner = await isResourceOwner(id, username);
