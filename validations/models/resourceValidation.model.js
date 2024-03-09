@@ -6,9 +6,9 @@ const resourceValidationSchema = yup.object({
 	description: yup.string(),
 	category: yup.object().shape({
 		main: yup.string().oneOf(RESOURCE_CATEGORIES_NAMES).required(),
-		sub: yup.string().when(['category', 'main'], {
+		sub: yup.string().when('main', {
 			is: main => RESOURCE_CATEGORIES_WITH_SUBCATEGORIES.includes(main),
-			then: yup.string().when(['category', 'main'], {
+			then: yup.string().when('main', {
 				is: main => main === RESOURCE_CATEGORIES.CAREER_WORKSHOPS,
 				then: yup.string().oneOf(CAREER_WORKSHOPS_SUBCATEGORIES_NAMES).required(),
 				otherwise: yup.string().oneOf(SKILLS_WORKSHOPS_SUBCATEGORIES_NAMES).required(),
@@ -18,7 +18,9 @@ const resourceValidationSchema = yup.object({
 	}),
 	author: yup.string().required(),
 	username: yup.string().required(),
-	resource_link: yup.string().required(),
+	resource_link: yup.string()
+		.matches(/^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm)
+		.required(),
 });
 
 export default resourceValidationSchema;

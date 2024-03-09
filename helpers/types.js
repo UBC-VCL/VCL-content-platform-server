@@ -32,7 +32,7 @@ const CAREER_WORKSHOPS_SUBCATEGORIES = {
 // TODO add resource category name check to validator once RESOURCE_CATEGORIES is populated
 export const RESOURCE_CATEGORIES_NAMES = Object.values(RESOURCE_CATEGORIES);
 export const RESOURCE_CATEGORIES_WITH_SUBCATEGORIES = Object.values(RESOURCE_CATEGORIES)
-	.filter((category) => category != "COGS 402 Projects");
+	.filter((category) => category !== 'COGS 402' && category !== 'Research Project');
 export const SKILLS_WORKSHOPS_SUBCATEGORIES_NAMES = Object.values(SKILLS_WORKSHOPS_SUBCATEGORIES);
 export const CAREER_WORKSHOPS_SUBCATEGORIES_NAMES = Object.values(CAREER_WORKSHOPS_SUBCATEGORIES);
 
