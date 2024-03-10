@@ -238,8 +238,8 @@ const resourceControllerTest = () => {
 							_id: '$category.sub'
 						}
 					}
-			]);
-			const expectedCount = resourceAggregateArray.length;
+				]);
+				const expectedCount = resourceAggregateArray.length;
 				const request = httpMocks.createRequest({
 					method: 'GET',
 					url: '/api/resources/:category',
