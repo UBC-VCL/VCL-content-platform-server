@@ -22,7 +22,7 @@ FRONTEND_API_KEY=$(aws ssm get-parameter --name frontend-api-key --with-decrypti
 docker run -d -p 5000:5000 \
 -e IS_WIP="production" \
 -e PORT=5000 \
--e API_KEY="$FRONTEND_API_KEY" \ 
+-e API_KEY=$FRONTEND_API_KEY \ 
 vcl_content_platform_backend_https 
 
 #add testing line
