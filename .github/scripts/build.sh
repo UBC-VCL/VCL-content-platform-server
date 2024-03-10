@@ -16,6 +16,9 @@ if docker ps -a --filter "ancestor=$image_id" -q | grep -q .; then
 fi
 docker rmi "$image_id"
 docker build -t vcl_content_platform_backend_https .
+
+FRONTEND_API_KEY=$(aws ssm get-parameter --name frontend-api-key --with-decryption --query 'Parameter.Value' --output text)
+
 docker run -d -p 5000:5000 \
 -e IS_WIP="production" \
 -e PORT=5000 \
