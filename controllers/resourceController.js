@@ -6,7 +6,6 @@ import {
 import RESOURCE_ERR from '../errors/resourceErrors.js';
 import User from '../models/user.model.js';
 import { isResourceOwner, separateSubCategories } from '../helpers/resourceHelper.js';
-import * as yup from 'yup';
 
 /**
  *
@@ -80,7 +79,6 @@ export const createResource = async (req, res) => {
  * @param Responds with array of resources.
  */
 export const getResourcesInCategory = async (req, res) => {
-	// TODO call isValidResourceCategory
 	await Resource.find({ 'category.main': req.params.category })
 		.sort('-category.sub -createdAt')
 		.populate({ path: 'owner', select: 'username' })

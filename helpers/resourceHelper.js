@@ -1,10 +1,6 @@
 import Resource from '../models/resource.model.js';
 import User from '../models/user.model.js';
 
-export const isValidResourceCategory = () => {
-	// TODO verify valid resource category
-};
-
 export const isResourceOwner = async (id, user) => {
 	const resource = await Resource.findOne({ _id: id });
 	const currUser = await User.findOne({ username: user });
