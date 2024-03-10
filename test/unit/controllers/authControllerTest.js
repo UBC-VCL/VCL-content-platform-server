@@ -238,9 +238,9 @@ const authControllerTest = () => {
 		//TODO: how can this test throw error code 500? when?
 	});
 
-	describe('test on logining out', ()=> {
+	describe('test on logging out', ()=> {
 		test('the authorization is failed. Should fail', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				method: 'POST',
@@ -289,7 +289,7 @@ const authControllerTest = () => {
 		});
 
 		test('is not member, should fail', async() => {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				method: 'PUT',
