@@ -34,14 +34,14 @@ const memberSchema = new Schema(
 				},
 				required: true,
 			},
-			message: {
-				type: String,
-				required: false,
-			}
 		},
 		blurb: {
 			type: String,
 			required: false
+		},
+		isAlumni: {
+			type: Boolean,
+			required: true,
 		}
 		// isActive: {
 		//   type: Boolean,
