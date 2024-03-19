@@ -92,15 +92,15 @@ const memberControllerTest= ()=>{
 					console.log(err);
 					fail();
 				});
-				const request = httpMocks.createRequest({
-					method: 'GET',
-					url: '/api/members',
-				});
-				const response = httpMocks.createResponse();
-				await getMember(request, response);
-				expect(response._getStatusCode()).toBe(200);
-				const temp = JSON.parse(response._getData());
-				expect(temp.data.length).toBe(expectedCount);
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/members',
+			});
+			const response = httpMocks.createResponse();
+			await getMember(request, response);
+			expect(response._getStatusCode()).toBe(200);
+			const temp = JSON.parse(response._getData());
+			expect(temp.data.length).toBe(expectedCount);
 		})
 	});
 
@@ -117,18 +117,18 @@ const memberControllerTest= ()=>{
 					console.log(err);
 					fail();
 				});
-				const request = httpMocks.createRequest({
-					method: 'GET',
-					url: '/api/members/:project',
-					params: {
-						'project': 'NOVA',
-					}
-				});
-				const response = httpMocks.createResponse();
-				await getProjectMembers(request, response);
-				expect(response._getStatusCode()).toBe(200);
-				const temp = JSON.parse(response._getData());
-				expect(temp.data.length).toBe(expectedCount);
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/members/:project',
+				params: {
+					'project': 'NOVA',
+				}
+			});
+			const response = httpMocks.createResponse();
+			await getProjectMembers(request, response);
+			expect(response._getStatusCode()).toBe(200);
+			const temp = JSON.parse(response._getData());
+			expect(temp.data.length).toBe(expectedCount);
 		})
 	});
 };
