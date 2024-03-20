@@ -8,7 +8,7 @@ const snapshotControllerTest =  ()=>{
 	describe('test on create snapshot', ()=>{
         
 		test('should pass', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
@@ -44,7 +44,7 @@ const snapshotControllerTest =  ()=>{
 		});
 
 		test('does not have permission. should fail', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
@@ -70,7 +70,7 @@ const snapshotControllerTest =  ()=>{
 		});
 
 		test('body schema is wrong. should fail.', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
@@ -183,7 +183,7 @@ const snapshotControllerTest =  ()=>{
 	describe('test on update snapshot', ()=>{
 		test('do not have permission. shoud fail', async ()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots/:id',
@@ -203,7 +203,7 @@ const snapshotControllerTest =  ()=>{
 		});
 		test('pass a dummy id. shoul fail', async()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots/:id',
@@ -224,7 +224,7 @@ const snapshotControllerTest =  ()=>{
 		test('should pass', async ()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots/:id',
@@ -258,7 +258,7 @@ const snapshotControllerTest =  ()=>{
 	describe('test on delete snapshots', () => {
 		test('does not have permmission. should fail', async ()=> {
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
@@ -275,7 +275,7 @@ const snapshotControllerTest =  ()=>{
 		});
 		test('request params is missing. should fail', async ()=> {
            
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
@@ -293,7 +293,7 @@ const snapshotControllerTest =  ()=>{
 		test('should pass', async()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',

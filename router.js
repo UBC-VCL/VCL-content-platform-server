@@ -40,7 +40,15 @@ import { createMember, getMember } from './controllers/memberController.js';
 
 
 //QUERY controller imports
-import {postQuery}  from './controllers/queryController.js';
+import { postQuery } from './controllers/queryController.js';
+import resourceValidationSchema from './validations/models/resourceValidation.model.js';
+import {
+	createResource,
+	deleteResource,
+	getResource,
+	getResourcesInCategory,
+	updateResource,
+} from './controllers/resourceController.js';
 const router = express.Router();
 
 /**
@@ -82,6 +90,14 @@ router.put('/api/users/change_password', changePassword);
 router.post('/api/members', createMember);
 router.get('/api/members', getMember);
 
+/**
+ * RESOURCES ENDPOINTS
+ */
+router.post('/api/resources', validate(resourceValidationSchema), createResource);
+router.get('/api/resources/:category', getResourcesInCategory);
+router.get('/api/resources/:id', getResource);
+router.patch('/api/resources/:id', validate(resourceValidationSchema), updateResource);
+router.delete('/api/resources/:id', deleteResource);
 
 /**
  * QUERY ENDPOINTS

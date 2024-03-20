@@ -8,7 +8,7 @@ const memberControllerTest= ()=>{
 	describe('testing on creating member', ()=>{
 
 		test('No member permissions, should fail', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
 			const request = httpMocks.createRequest({
 				method: 'POST',
@@ -25,7 +25,7 @@ const memberControllerTest= ()=>{
 		});
 
 		test('send a wrong schema. should fail', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				method: 'POST',
@@ -39,7 +39,7 @@ const memberControllerTest= ()=>{
 			expect(response._getStatusCode()).toBe(400);
 		});
 		test('should pass', async()=>{
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasMemberPermissions');
+			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
 			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				method: 'POST',
