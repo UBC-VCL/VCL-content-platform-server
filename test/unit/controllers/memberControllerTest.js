@@ -1,7 +1,6 @@
 import httpMocks  from 'node-mocks-http';
 import Member from '../../../models/member.model.js';
 import {createMember, getMember, getProjectMembers} from '../../../controllers/memberController.js';
-import authHelper from '../../../helpers/authHelper.js';
 
 //TODO: how can it send status code 500 ?
 const memberControllerTest= ()=>{

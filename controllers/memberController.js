@@ -62,15 +62,12 @@ export const getMember = async (req, res) => {
 			message: 'Successfully retrieved members.',
 			data: members,
 		});
-
-		return;
 	} catch (error) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to retrieve members',
 			error,
 			errCode: MEMBER_ERR.MEMBER003,
 		});
-		return;
 	}
 };
 
@@ -90,14 +87,11 @@ export const getProjectMembers = async (req, res) => {
 			message: `Successfully retrieved ${req.headers.project} team members.`,
 			data: members,
 		});
-
-		return;
 	} catch (error) {
 		res.status(500).json({
 			message: `Internal server error while attempting to retrieve ${req.headers.project} team members`,
 			error,
 			errCode: MEMBER_ERR.MEMBER004,
 		});
-		return;
 	}
 }
