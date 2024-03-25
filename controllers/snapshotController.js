@@ -7,69 +7,51 @@ import User from '../models/user.model.js';
  * 
  * @param Expected request body:
 		  {
-			author: ObjectId,
-			title: String,
-			project: String,
-			date: String,
-			categories: Array<String>,
-			description: Array<String>,
-			hyperlinks: Array<String>,
-			contributors: Array<ObjectId>
-		  }
-   @param Expected HEADERS:
-		  {
-			authorization: string
+				author: ObjectId,
+				title: String,
+				project: String,
+				date: String,
+				categories: Array<String>,
+				description: Array<String>,
+				hyperlinks: Array<String>,
+				contributors: Array<ObjectId>
 		  }
  *
  * @param Responds with created object.
  */
 export const createSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		const newSnapshot = new Snapshot({
+			author: req.body.author,
+			title: req.body.title,
+			project: req.body.project,
+			date: req.body.date,
+			categories: req.body.categories,
+			descriptions: req.body.descriptions,
+			hyperlinks: req.body.hyperlinks,
+			contributors: req.body.contributors,
+		});
 
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to create a snapshot'
-			});
-			return;
-
-		} else {
-			const newSnapshot = new Snapshot({
-				author: req.body.author,
-				title: req.body.title,
-				project: req.body.project,
-				date: req.body.date,
-				categories: req.body.categories,
-				descriptions: req.body.descriptions,
-				hyperlinks: req.body.hyperlinks,
-				contributors: req.body.contributors,
-			});
-
-			await newSnapshot
-				.save()
-				.then((data) => {
-					res.status(200).json({
-						message: 'Successfully created timeline snapshot.',
-						data: data,
-					});
-				})
-				.catch((err) => {
-					res.status(400).json({
-						message: 'Error saving timeline snapshot to MongoDB',
-						error: err,
-					});
+		await newSnapshot
+			.save()
+			.then((data) => {
+				res.status(200).json({
+					message: 'Successfully created timeline snapshot.',
+					data: data,
 				});
-
-			return;
-		}
+			})
+			.catch((err) => {
+				res.status(400).json({
+					message: 'Error saving timeline snapshot to MongoDB',
+					error: err,
+				});
+			});
 	} catch (err) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to create snapshot',
 			error: err,
 			errCode: SNAPSHOT_ERR.SNAPSHOT001
 		});
-
-		return;
 	}
 };
 
@@ -79,41 +61,31 @@ export const createSnapshot = async (req, res) => {
  *                 objects based on query parameters
  */
 export const getAllSnapshots = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
+	const filter = {};
+	const validFilters = ['project', 'date', 'author', 'categories'];
 
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access all snapshots.'
-		});
-		return;
-
-	} else {
-		const filter = {};
-		const validFilters = ['project', 'date', 'author', 'categories'];
-
-		for (const [key, value] of Object.entries(req.query)) {
-			if (validFilters.includes(key)) {
-				filter[key] = value;
-			}
+	for (const [key, value] of Object.entries(req.query)) {
+		if (validFilters.includes(key)) {
+			filter[key] = value;
 		}
-
-		await Snapshot.find(filter)
-			.sort('-date')
-			.exec()
-			.then((data) => {
-				res.status(200).json({
-					message: 'Successfully retrieved all timeline snapshots',
-					data: data,
-				});
-			})
-			.catch((err) => {
-				res.status(500).json({
-					message: 'Error getting all timeline snapshots from MongoDB',
-					error: err,
-					errCode: SNAPSHOT_ERR.SNAPSHOT002
-				});
-			});
 	}
+
+	await Snapshot.find(filter)
+		.sort('-date')
+		.exec()
+		.then((data) => {
+			res.status(200).json({
+				message: 'Successfully retrieved all timeline snapshots',
+				data: data,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				message: 'Error getting all timeline snapshots from MongoDB',
+				error: err,
+				errCode: SNAPSHOT_ERR.SNAPSHOT002
+			});
+		});
 };
 
 /**
@@ -123,28 +95,20 @@ export const getAllSnapshots = async (req, res) => {
  */
 export const deleteSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a user to delete a snapshot'
-			});
-		} else {
-			await Snapshot.findByIdAndDelete(req.params.id)
-				.exec()
-				.then((data) => {
-					res.status(200).json({
-						message: 'Successfully deleted timeline snapshot',
-						data: data,
-					});
-				})
-				.catch((err) => {
-					res.status(400).json({
-						message: 'Error deleting timeline snapshot from MongoDB',
-						error: err,
-					});
+		await Snapshot.findByIdAndDelete(req.params.id)
+			.exec()
+			.then((data) => {
+				res.status(200).json({
+					message: 'Successfully deleted timeline snapshot',
+					data: data,
 				});
-		}
+			})
+			.catch((err) => {
+				res.status(400).json({
+					message: 'Error deleting timeline snapshot from MongoDB',
+					error: err,
+				});
+			});
 	} catch (err) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to delete snapshot',
@@ -161,32 +125,22 @@ export const deleteSnapshot = async (req, res) => {
  */
 
 export const getSnapshot = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access a snapshot.'
-		});
-		return;
-
-	} else {
-		let id = req.params.id;
-		await Snapshot.findById(id)
-			.exec()
-			.then((data) => {
-				res.status(200).json({
-					message: 'Successfully retrieved timeline snapshot',
-					data: data,
-				});
-			})
-			.catch((err) => {
-				res.status(500).json({
-					message: 'Error retrieving timeline snapshot from MongoDB',
-					error: err,
-					errCode: SNAPSHOT_ERR.SNAPSHOT004
-				});
+	let id = req.params.id;
+	await Snapshot.findById(id)
+		.exec()
+		.then((data) => {
+			res.status(200).json({
+				message: 'Successfully retrieved timeline snapshot',
+				data: data,
 			});
-	}
+		})
+		.catch((err) => {
+			res.status(500).json({
+				message: 'Error retrieving timeline snapshot from MongoDB',
+				error: err,
+				errCode: SNAPSHOT_ERR.SNAPSHOT004
+			});
+		});
 };
 
 /**
@@ -206,48 +160,40 @@ request url parameter: id - ID of the timeline snapshot to update
 
 export const updateSnapshot = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		try {
+			let newSnapshot = req.body;
 
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a user to update a snapshot'
+			if (req.body.hasOwnProperty('contributors')) {
+				let users = [];
+				for (let user of req.body.contributors) {
+					const lookup = await User.find({ 'username': new RegExp(`^${user}$`, 'i') });
+					if (lookup.length) users.push(lookup[0]._id);
+					else throw `User ${user} does not exist`;
+				}
+				newSnapshot['contributors'] = users;
+			}
+
+			const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, newSnapshot, {
+				new: true,
 			});
-		} else {
-			try {
-				let newSnapshot = req.body;
 
-				if (req.body.hasOwnProperty('contributors')) {
-					let users = [];
-					for (let user of req.body.contributors) {
-						const lookup = await User.find({ 'username': new RegExp(`^${user}$`, 'i') });
-						if (lookup.length) users.push(lookup[0]._id);
-						else throw `User ${user} does not exist`;
-					}
-					newSnapshot['contributors'] = users;
-				}
-
-				const updatedSnapshot = await Snapshot.findByIdAndUpdate(req.params.id, newSnapshot, {
-					new: true,
+			if (updatedSnapshot) {
+				res.status(200).json({
+					message: 'Successfully updated snapshot',
+					data: updatedSnapshot,
 				});
-
-				if (updatedSnapshot) {
-					res.status(200).json({
-						message: 'Successfully updated snapshot',
-						data: updatedSnapshot,
-					});
-				} else {
-					res.status(400).json({
-						message: 'Could not update snapshot'
-					});
-				}
-
-			} catch (error) {
-				res.status(500).json({
-					message: 'Internal server error while attempting to update snapshot',
-					errCode: 'SNAPSHOT005',
-					error,
+			} else {
+				res.status(400).json({
+					message: 'Could not update snapshot'
 				});
 			}
+
+		} catch (error) {
+			res.status(500).json({
+				message: 'Internal server error while attempting to update snapshot',
+				errCode: 'SNAPSHOT005',
+				error,
+			});
 		}
 	} catch (error) {
 		res.status(500).json({

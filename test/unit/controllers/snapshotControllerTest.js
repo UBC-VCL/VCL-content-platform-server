@@ -1,15 +1,11 @@
 import httpMocks  from 'node-mocks-http';
 import mongoose from 'mongoose';
 import { createSnapshot, deleteSnapshot, getAllSnapshots, getSnapshot, updateSnapshot } from '../../../controllers/snapshotController';
-import authHelper from '../../../helpers/authHelper.js';
 import Snapshot from '../../../models/snapshot.model';
 import User from '../../../models/user.model';
 const snapshotControllerTest =  ()=>{
 	describe('test on create snapshot', ()=>{
-        
 		test('should pass', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
 				method: 'POST',
@@ -43,35 +39,33 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.data.author).toBe('61a2dd6b0076a86ec89cd232');
 		});
 
-		test('does not have permission. should fail', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-			const request = httpMocks.createRequest({
-				url: '/api/snapshots',
-				method: 'POST',
-				body: {
+		// test('does not have permission. should fail', async ()=> {
+		// 	const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
+		// 	mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
+		// 	const request = httpMocks.createRequest({
+		// 		url: '/api/snapshots',
+		// 		method: 'POST',
+		// 		body: {
                     
-					title: 'npmTest',
-					descriptions: ['npmTest'],
-					hyperlinks: ['test.png'],
-					date: '3000-01-01',
-					project: 'npmTest',
-					categories: ['c1'],
-					contributors: [mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')],
-					author: mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')
+		// 			title: 'npmTest',
+		// 			descriptions: ['npmTest'],
+		// 			hyperlinks: ['test.png'],
+		// 			date: '3000-01-01',
+		// 			project: 'npmTest',
+		// 			categories: ['c1'],
+		// 			contributors: [mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')],
+		// 			author: mongoose.Types.ObjectId('61a2dd6b0076a86ec89cd232')
                       
-				}
-			});
-			const response = httpMocks.createResponse();
-			await createSnapshot(request, response);
-			expect(response._getStatusCode()).toBe(400);
-			const temp = JSON.parse(response._getData());
-			expect(temp.message).toBe('Invalid access - must be a member to create a snapshot');
-		});
+		// 		}
+		// 	});
+		// 	const response = httpMocks.createResponse();
+		// 	await createSnapshot(request, response);
+		// 	expect(response._getStatusCode()).toBe(400);
+		// 	const temp = JSON.parse(response._getData());
+		// 	expect(temp.message).toBe('Invalid access - must be a member to create a snapshot');
+		// });
 
 		test('body schema is wrong. should fail.', async ()=> {
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
 				method: 'POST',
@@ -140,7 +134,6 @@ const snapshotControllerTest =  ()=>{
 
 	describe('test on get a specific snapshot', ()=>{
 		test('The id passed does not exists', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
 				method: 'GET',
 				url: '/api/snapshots/:id',
@@ -152,6 +145,7 @@ const snapshotControllerTest =  ()=>{
 			await getSnapshot(request, response);
 			expect(response._getStatusCode()).toBe(500);
 		});
+
 		test('should pass', async ()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const request = httpMocks.createRequest({
@@ -181,30 +175,26 @@ const snapshotControllerTest =  ()=>{
 
 	//Need ADMIN_001 user to be present
 	describe('test on update snapshot', ()=>{
-		test('do not have permission. shoud fail', async ()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-			const request = httpMocks.createRequest({
-				url: '/api/snapshots/:id',
-				method: 'PUT',
-				params: {
-					id: testSnapshot.id
-				},
-				body: {
-					contributors: ['Admin_001']
-				}
-			});
-			const response = httpMocks.createResponse();
-			await updateSnapshot(request, response);
-			expect(response._getStatusCode()).toBe(400);
-			const temp = JSON.parse(response._getData());
-			expect(temp.message).toBe('Invalid access - must be a user to update a snapshot');
-		});
+		// test('do not have permission. shoud fail', async ()=>{
+		// 	const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
+		// 	const request = httpMocks.createRequest({
+		// 		url: '/api/snapshots/:id',
+		// 		method: 'PUT',
+		// 		params: {
+		// 			id: testSnapshot.id
+		// 		},
+		// 		body: {
+		// 			contributors: ['Admin_001']
+		// 		}
+		// 	});
+		// 	const response = httpMocks.createResponse();
+		// 	await updateSnapshot(request, response);
+		// 	expect(response._getStatusCode()).toBe(400);
+		// 	const temp = JSON.parse(response._getData());
+		// 	expect(temp.message).toBe('Invalid access - must be a user to update a snapshot');
+		// });
+
 		test('pass a dummy id. shoul fail', async()=>{
-			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots/:id',
 				method: 'PUT',
@@ -221,11 +211,10 @@ const snapshotControllerTest =  ()=>{
 			const temp = JSON.parse(response._getData());
 			expect(temp.message).toBe('Internal server error while attempting to update snapshot');
 		});
+
 		test('should pass', async ()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots/:id',
 				method: 'PUT',
@@ -252,31 +241,28 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.data.contributors[0]).toBe(adminUser._id.toString());
 			expect(temp.data.author).toBe('61a2dd6b0076a86ec89cd232');
 		});
-        
 	});
 
 	describe('test on delete snapshots', () => {
-		test('does not have permmission. should fail', async ()=> {
-			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-			const request = httpMocks.createRequest({
-				url: '/api/snapshots',
-				method: 'DELETE',
-				params: {
-					id: testSnapshot.id
-				}
-			});
-			const response = httpMocks.createResponse();
-			await deleteSnapshot(request, response);
-			expect(response._getStatusCode()).toBe(400);
-			const temp = JSON.parse(response._getData());
-			expect(temp.message).toBe('Invalid access - must be a user to delete a snapshot');
-		});
+		// test('does not have permmission. should fail', async ()=> {
+		// 	const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
+		// 	const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
+		// 	mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
+		// 	const request = httpMocks.createRequest({
+		// 		url: '/api/snapshots',
+		// 		method: 'DELETE',
+		// 		params: {
+		// 			id: testSnapshot.id
+		// 		}
+		// 	});
+		// 	const response = httpMocks.createResponse();
+		// 	await deleteSnapshot(request, response);
+		// 	expect(response._getStatusCode()).toBe(400);
+		// 	const temp = JSON.parse(response._getData());
+		// 	expect(temp.message).toBe('Invalid access - must be a user to delete a snapshot');
+		// });
+
 		test('request params is missing. should fail', async ()=> {
-           
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
 				method: 'DELETE',
@@ -290,11 +276,10 @@ const snapshotControllerTest =  ()=>{
 			const temp = JSON.parse(response._getData());
 			expect(temp.message).toBe('Error deleting timeline snapshot from MongoDB');
 		});
+
 		test('should pass', async()=>{
 			const testSnapshot = await Snapshot.findOne({title: 'npmTest'});
 			const adminUser = await User.findOne({username: 'ADMIN_001'});
-			const mockHasAdminPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-			mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
 			const request = httpMocks.createRequest({
 				url: '/api/snapshots',
 				method: 'DELETE',
@@ -317,10 +302,8 @@ const snapshotControllerTest =  ()=>{
 			expect(temp.data.contributors.length).toBe(1);
 			expect(temp.data.contributors[0]).toBe(adminUser._id.toString());
 			expect(temp.data.author).toBe('61a2dd6b0076a86ec89cd232');
-
 		});
 	});
-
 };
 
 

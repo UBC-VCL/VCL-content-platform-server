@@ -1,5 +1,5 @@
 import httpMocks from 'node-mocks-http';
-import authHelper, { sendCreateUser } from '../../../helpers/authHelper.js';
+import { sendCreateUser } from '../../../helpers/authHelper.js';
 import {
 	createResource,
 	deleteResource,
@@ -16,17 +16,11 @@ import mongoose from 'mongoose';
 
 const resourceControllerTest = () => {
 	describe('resource controller tests', () => {
-		let mockHasMemberPermissions;
-		let mockHasAdminPermissions;
 		let resourceId;
 		let userId;
 	
 		beforeAll(async () => {
 			try {
-				console.log('Setting up helper method spies');
-				mockHasMemberPermissions = jest.spyOn(authHelper, 'hasFrontendAPIKey');
-				mockHasAdminPermissions = jest.spyOn(authHelper, 'hasAdminPermissions');
-		
 				console.log('Creating member for resource tests');
 				const member = await sendCreateMember({
 					name: {
@@ -94,8 +88,6 @@ const resourceControllerTest = () => {
 	
 		describe('test create resource', () => {
 			test('send valid user information, should create a resource', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-	
 				const request = httpMocks.createRequest({
 					method: 'POST',
 					url: '/api/resources',
@@ -107,10 +99,10 @@ const resourceControllerTest = () => {
 							sub: new Date().getFullYear().toString(),
 						},
 						author: 'Resource Test',
-						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
 				});
+				request.user = {username: 'resourceUser'};
 	
 				const response = httpMocks.createResponse();
 				await createResource(request, response);
@@ -129,37 +121,33 @@ const resourceControllerTest = () => {
 				expect(temp.data.resource_link).toBe('https://www.google.com');
 			});
 	
-			test('no permissions, not a member', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(false));
+			// test('no permissions, not a member', async () => {
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'POST',
+			// 		url: '/api/resources',
+			// 		body: {
+			// 			title: 'test_title',
+			// 			description: 'test_description',
+			// 			category: {
+			// 				main: 'COGS 402',
+			// 				sub: '2024',
+			// 			},
+			// 			author: 'Resource Test',
+			// 			resource_link: 'https://www.google.com',
+			// 		},
+			// 	});
 	
-				const request = httpMocks.createRequest({
-					method: 'POST',
-					url: '/api/resources',
-					body: {
-						title: 'test_title',
-						description: 'test_description',
-						category: {
-							main: 'COGS 402',
-							sub: '2024',
-						},
-						author: 'Resource Test',
-						username: 'resourceUser',
-						resource_link: 'https://www.google.com',
-					},
-				});
+			// 	const response = httpMocks.createResponse();
+			// 	await createResource(request, response);
 	
-				const response = httpMocks.createResponse();
-				await createResource(request, response);
-	
-				expect(response._getStatusCode()).toBe(400);
-				const temp = JSON.parse(response._getData());
-				expect(temp.message).toBe(
-					'Invalid access - must be a member to create a new resource.'
-				);
-			});
+			// 	expect(response._getStatusCode()).toBe(400);
+			// 	const temp = JSON.parse(response._getData());
+			// 	expect(temp.message).toBe(
+			// 		'Invalid access - must be a member to create a new resource.'
+			// 	);
+			// });
 	
 			test('unexpected user not found', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				const request = httpMocks.createRequest({
 					method: 'POST',
 					url: '/api/resources',
@@ -171,10 +159,10 @@ const resourceControllerTest = () => {
 							sub: '2024',
 						},
 						author: 'Resource Test',
-						username: 'bad_username',
 						resource_link: 'https://www.google.com',
 					},
 				});
+				request.user = {username: 'bad_username'};
 	
 				const response = httpMocks.createResponse();
 				await createResource(request, response);
@@ -315,10 +303,7 @@ const resourceControllerTest = () => {
 		});
 	
 		describe('test update resource', () => {
-			test('update as user with admin permissions, should pass', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(true));
-	
+			test('update as user with admin permissions, should pass', async () => {	
 				const request = httpMocks.createRequest({
 					method: 'PATCH',
 					url: '/api/resources/:id',
@@ -333,11 +318,11 @@ const resourceControllerTest = () => {
 							sub: 'Coding'
 						},
 						author: 'New Author',
-						username: 'resourceAdmin',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
-	
+				request.user = {username: 'resourceAdmin', permissions: 'admin'};
+
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
 	
@@ -355,9 +340,6 @@ const resourceControllerTest = () => {
 			});
 
 			test('update as resource owner, should pass', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-	
 				const request = httpMocks.createRequest({
 					method: 'PATCH',
 					url: '/api/resources/:id',
@@ -372,10 +354,10 @@ const resourceControllerTest = () => {
 							sub: (new Date().getFullYear() + 1).toString(),
 						},
 						author: 'Resource Test',
-						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
 				});
+				request.user = {username: 'resourceUser', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
@@ -383,7 +365,6 @@ const resourceControllerTest = () => {
 				const temp = JSON.parse(response._getData());
 				console.log(temp.message);
 				expect(response._getStatusCode()).toBe(200);
-
 	
 				expect(temp.message).toBe('Successfully updated resource');
 				expect(temp.data.title).toBe('title');
@@ -396,9 +377,6 @@ const resourceControllerTest = () => {
 			});
 
 			test('update not the owner or an admin, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-	
 				const request = httpMocks.createRequest({
 					method: 'PATCH',
 					url: '/api/resources/:id',
@@ -413,10 +391,10 @@ const resourceControllerTest = () => {
 							sub: 'Coding'
 						},
 						author: 'New Author',
-						username: 'notOwnerNotAdmin',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
+				request.user = {username: 'notOwnerNotAdmin', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
@@ -429,43 +407,38 @@ const resourceControllerTest = () => {
 				);
 			});
 
-			test('not a user, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(false));
+			// test('not a user, should fail', async () => {
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'PATCH',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resourceId,
+			// 		},
+			// 		body: {
+			// 			title: 'change_name_test',
+			// 			description: 'change_desc',
+			// 			category: {
+			// 				main: 'Skills Workshops',
+			// 				sub: 'Coding'
+			// 			},
+			// 			author: 'New Author',
+			// 			resource_link: 'https://www.youtube.com',
+			// 		},
+			// 	});
 	
-				const request = httpMocks.createRequest({
-					method: 'PATCH',
-					url: '/api/resources/:id',
-					params: {
-						id: resourceId,
-					},
-					body: {
-						title: 'change_name_test',
-						description: 'change_desc',
-						category: {
-							main: 'Skills Workshops',
-							sub: 'Coding'
-						},
-						author: 'New Author',
-						username: 'notMember',
-						resource_link: 'https://www.youtube.com',
-					},
-				});
+			// 	const response = httpMocks.createResponse();
+			// 	await updateResource(request, response);
 	
-				const response = httpMocks.createResponse();
-				await updateResource(request, response);
+			// 	expect(response._getStatusCode()).toBe(400);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(response._getStatusCode()).toBe(400);
-				const temp = JSON.parse(response._getData());
-	
-				expect(temp.message).toBe(
-					'Invalid access - must be a member to update a resource'
-				);
-			});
+			// 	expect(temp.message).toBe(
+			// 		'Invalid access - must be a member to update a resource'
+			// 	);
+			// });
 
 			test('non-existent resource id, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-	
-				const request = httpMocks.createRequest({
+					const request = httpMocks.createRequest({
 					method: 'PATCH',
 					url: '/api/resources/:id',
 					params: {
@@ -479,10 +452,10 @@ const resourceControllerTest = () => {
 							sub: 'Coding'
 						},
 						author: 'New Author',
-						username: 'resourceUser',
 						resource_link: 'https://www.youtube.com',
 					},
 				});
+				request.user = {username: 'resourceUser', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
@@ -498,19 +471,14 @@ const resourceControllerTest = () => {
 	
 		describe('test delete resource', () => {
 			test('delete not as the owner or an admin, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-	
 				const request = httpMocks.createRequest({
 					method: 'DELETE',
 					url: '/api/resources/:id',
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						username: 'notOwnerNotAdmin',
-					},
 				});
+				request.user = {username: 'notOwnerNotAdmin', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);
@@ -524,17 +492,14 @@ const resourceControllerTest = () => {
 			});
 
 			test('send non-existent resource id, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
 				const request = httpMocks.createRequest({
 					method: 'DELETE',
 					url: '/api/resources/:id',
 					params: {
 						id: '5f85fd2f0ab7c11e186f146b',
 					},
-					headers: {
-						username: 'resourceUser',
-					},
 				});
+				request.user = {username: 'resourceUser', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);
@@ -547,46 +512,39 @@ const resourceControllerTest = () => {
 				);
 			});
 
-			test('not a user, should fail', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(false));
+			// test('not a user, should fail', async () => {
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'DELETE',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resourceId,
+			// 		},
+			// 		headers: {
+			// 			username: 'notMember',
+			// 		},
+			// 	});
 	
-				const request = httpMocks.createRequest({
-					method: 'DELETE',
-					url: '/api/resources/:id',
-					params: {
-						id: resourceId,
-					},
-					headers: {
-						username: 'notMember',
-					},
-				});
+			// 	const response = httpMocks.createResponse();
+			// 	await deleteResource(request, response);
 	
-				const response = httpMocks.createResponse();
-				await deleteResource(request, response);
+			// 	expect(response._getStatusCode()).toBe(400);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(response._getStatusCode()).toBe(400);
-				const temp = JSON.parse(response._getData());
-	
-				expect(temp.message).toBe(
-					'Invalid access - must be a member to delete a resource'
-				);
-			});
+			// 	expect(temp.message).toBe(
+			// 		'Invalid access - must be a member to delete a resource'
+			// 	);
+			// });
 
 			test('delete as owner, should pass', async () => {
-				mockHasMemberPermissions.mockReturnValueOnce(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValueOnce(Promise.resolve(false));
-	
 				const request = httpMocks.createRequest({
 					method: 'DELETE',
 					url: '/api/resources/:id',
 					params: {
 						id: resourceId,
 					},
-					headers: {
-						username: 'resourceUser',
-					},
 				});
-	
+				request.user = {username: 'resourceUser', permissions: 'default_user'};
+
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);
 	
@@ -597,9 +555,6 @@ const resourceControllerTest = () => {
 			});
 
 			test('delete as admin, should pass', async () => {
-				mockHasMemberPermissions.mockReturnValue(Promise.resolve(true));
-				mockHasAdminPermissions.mockReturnValue(Promise.resolve(true));
-	
 				const createRequest = httpMocks.createRequest({
 					method: 'POST',
 					url: '/api/resources',
@@ -611,10 +566,10 @@ const resourceControllerTest = () => {
 							sub: '2024',
 						},
 						author: 'Resource Test',
-						username: 'resourceUser',
 						resource_link: 'https://www.google.com',
 					},
 				});
+				createRequest.user = {username: 'resourceUser'};
 	
 				const createResponse = httpMocks.createResponse();
 				await createResource(createRequest, createResponse);
@@ -626,10 +581,8 @@ const resourceControllerTest = () => {
 					params: {
 						id: resource.data._id,
 					},
-					headers: {
-						username: 'resourceAdmin',
-					},
 				});
+				request.user = {username: 'resourceAdmin', permissions: 'admin'};
 	
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);

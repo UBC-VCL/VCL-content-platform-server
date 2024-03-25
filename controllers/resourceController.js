@@ -1,14 +1,10 @@
 import Resource from '../models/resource.model.js';
-import {
-	hasAdminPermissions,
-	hasFrontendAPIKey,
-} from '../helpers/authHelper.js';
 import RESOURCE_ERR from '../errors/resourceErrors.js';
 import User from '../models/user.model.js';
 import { isResourceOwner, separateSubCategories } from '../helpers/resourceHelper.js';
+import { USER_TYPES } from '../helpers/types.js';
 
 /**
- *
  * @param Expected request body:
  *        {
  *          title: string,
@@ -18,28 +14,14 @@ import { isResourceOwner, separateSubCategories } from '../helpers/resourceHelpe
  * 						sub: string,
  * 					},
  * 					author: string,
- *          username: string,
  *          resource_link: string,
- *        }
- * @param Expected request headers:
- *        {
- *          authorization: string,
  *        }
  * @param Responds with status code and messsage.
  */
 export const createResource = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to create a new resource.',
-			});
-			return;
-		}
-
-		const { title, description, category, author, username, resource_link } = req.body;
-		const ownerUser = await User.findOne({ username: username });
+		const { title, description, category, author, resource_link } = req.body;
+		const ownerUser = await User.findOne({ username: req.user.username });
 		if (!ownerUser) {
 			throw 'logged in user could not be found, when it should have been.';
 		}
@@ -71,7 +53,6 @@ export const createResource = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request parameter:
  *        {
  *          category: string,
@@ -100,7 +81,6 @@ export const getResourcesInCategory = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request parameter:
  *        {
  *          id: mongoose.ObjectId (id of resource),
@@ -134,7 +114,6 @@ export const getResource = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request parameter:
  *        {
  *          id: mongoose.ObjectId (id of resource),
@@ -148,33 +127,16 @@ export const getResource = async (req, res) => {
  * 						sub: string,
  * 					},
  * 					author: string,
- * 					username: string,
  *          resource_link: string,
- *        }
- * @param Expected request headers:
- *        {
- *          authorization: string,
- *          
  *        }
  * @param Responds with status code and messsage.
  */
 export const updateResource = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-		const isAdmin = await hasAdminPermissions(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to update a resource',
-			});
-			return;
-		}
-
 		const id = req.params.id;
-		const { username } = req.body;
 		try {
-			const isOwner = await isResourceOwner(id, username);
-			if (!isOwner && !isAdmin) {
+			const isOwner = await isResourceOwner(id, req.user.username);
+			if (!isOwner && req.user.permissions !== USER_TYPES.ADMIN) {
 				res.status(400).json({
 					message:
             'Invalid access - must be either owner of resource or an admin to update a resource',
@@ -218,36 +180,19 @@ export const updateResource = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request parameter:
  *        {
  *          id: mongoose.ObjectId (id of resource),
- *        }
- * @param Expected request headers:
- *        {
- *          authorization: string,
- * 					username: string,
  *        }
  * @param Responds with status code and messsage.
  */
 export const deleteResource = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-		const isAdmin = await hasAdminPermissions(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to delete a resource',
-			});
-			return;
-		}
-
 		const id = req.params.id;
-		const username = req.headers.username;
 		
 		try {
-			const isOwner = await isResourceOwner(id, username);
-			if (!isOwner && !isAdmin) {
+			const isOwner = await isResourceOwner(id, req.user.username);
+			if (!isOwner && req.user.permissions !== USER_TYPES.ADMIN) {
 				res.status(400).json({
 					message:
             'Invalid access - must be either owner of resource or an admin to delete a resource',

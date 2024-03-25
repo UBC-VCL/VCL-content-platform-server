@@ -1,39 +1,28 @@
 import PROJECT_ERR from '../errors/projectErrors.js';
 import Project from '../models/project.model.js';
-import { hasFrontendAPIKey } from '../helpers/authHelper.js';
 
 /**
  * Create a new Project
  */
 export const createProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+		const { name, description, members, isActive } = req.body;
+		const newProject = new Project({ name, description, members, isActive });
 
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to create a new project.',
-			});
-			return;
-		} else {
-			const { name, description, members, isActive } = req.body;
-			const newProject = new Project({ name, description, members, isActive });
-
-			//TODO: should add await
-			await newProject
-				.save()
-				.then((data) => {
-					res.status(200).json({
-						message: 'Successfully created new project.',
-						data,
-					});
-				})
-				.catch((err) => {
-					res.status(400).json({
-						message: 'Error creating new project',
-						error: err,
-					});
+		await newProject
+			.save()
+			.then((data) => {
+				res.status(200).json({
+					message: 'Successfully created new project.',
+					data,
 				});
-		}
+			})
+			.catch((err) => {
+				res.status(400).json({
+					message: 'Error creating new project',
+					error: err,
+				});
+			});
 	} catch (error) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to create project',
@@ -47,59 +36,39 @@ export const createProject = async (req, res) => {
  * Get all Projects
  */
 export const getProjects = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access all projects',
-		});
-
-		return;
-	} else {
-		await Project.find()
-			.exec()
-			.then((data) => {
-				res.status(200).json({
-					message: 'Successfully retrieved all Projects',
-					data,
-				});
-			})
-			.catch((error) => {
-				res.status(500).json({
-					message: 'Error while getting all Projects from MongoDB',
-					error,
-					errCode: PROJECT_ERR.PROJECT002,
-				});
+	await Project.find()
+		.exec()
+		.then((data) => {
+			res.status(200).json({
+				message: 'Successfully retrieved all Projects',
+				data,
 			});
-	}
+		})
+		.catch((error) => {
+			res.status(500).json({
+				message: 'Error while getting all Projects from MongoDB',
+				error,
+				errCode: PROJECT_ERR.PROJECT002,
+			});
+		});
 };
 
 /**
  * Get a single Project, identified by name
  */
 export const getProject = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
+	try {
+		const name = req.params.name;
+		const project = await Project.findOne({ name });
 
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access a project',
-		});
-
-		return;
-	} else {
-		try {
-			const name = req.params.name;
-			const project = await Project.findOne({ name });
-
-			if (project) {
-				res.status(200).json({
-					message: `Successfully retrieved project ${name}`,
-					data: project,
-				});
-			} else throw `Could not find project with name: ${name}`;
-		} catch (error) {
-			res.status(400).json({ message: error });
-		}
+		if (project) {
+			res.status(200).json({
+				message: `Successfully retrieved project ${name}`,
+				data: project,
+			});
+		} else throw `Could not find project with name: ${name}`;
+	} catch (error) {
+		res.status(400).json({ message: error });
 	}
 };
 
@@ -108,27 +77,19 @@ export const getProject = async (req, res) => {
  */
 export const updateProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to update a project',
+		try {
+			const name = req.params.name;
+			const updatedProject = await Project.findOneAndUpdate({ name: name }, req.body, {
+				new: true,
 			});
-		} else {
-			try {
-				const name = req.params.name;
-				const updatedProject = await Project.findOneAndUpdate({ name: name }, req.body, {
-					new: true,
+			if (updatedProject) {
+				res.status(200).json({
+					message: `Successfully updated project: ${name}`,
+					data: updatedProject,
 				});
-				if (updatedProject) {
-					res.status(200).json({
-						message: `Successfully updated project: ${name}`,
-						data: updatedProject,
-					});
-				} else throw `Could not update project with name: ${name}`;
-			} catch (error) {
-				res.status(400).json({ message: error });
-			}
+			} else throw `Could not update project with name: ${name}`;
+		} catch (error) {
+			res.status(400).json({ message: error });
 		}
 	} catch (error) {
 		res.status(500).json({
@@ -144,30 +105,21 @@ export const updateProject = async (req, res) => {
  */
 export const deleteProject = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - must be a member to delete a project.',
-			});
-			return;
-		} else {
-			try {
-				const name = req.params.name;
-				const { deletedCount } = await Project.deleteOne({ name });
-				if (deletedCount === 0) {
-					throw `could not find Project with name <${name}> to delete.`;
-				} else {
-					res.status(200).json({
-						message: `Successfully deleted project: ${name}`,
-					});
-				}
-			} catch (error) {
-				res.status(400).json({
-					message: 'Error - could not delete given project',
-					error,
+		try {
+			const name = req.params.name;
+			const { deletedCount } = await Project.deleteOne({ name });
+			if (deletedCount === 0) {
+				throw `could not find Project with name <${name}> to delete.`;
+			} else {
+				res.status(200).json({
+					message: `Successfully deleted project: ${name}`,
 				});
 			}
+		} catch (error) {
+			res.status(400).json({
+				message: 'Error - could not delete given project',
+				error,
+			});
 		}
 	} catch (error) {
 		res.status(500).json({

@@ -5,11 +5,13 @@ import mongoose from 'mongoose'; //Mongoose is a MongoDB library
 import router from './router.js';
 import https from 'https';
 import fs from 'fs';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 dotenv.config();
 app.use(express.json());
+app.use(cookieParser());
 
 const uri = process.env.ATLAS_URI;
 const IS_WIP = process.env.IS_WIP === 'production';
@@ -20,7 +22,10 @@ if (IS_WIP) {
 		origin: 'https://www.vcl.psych.ubc.ca/',
 	}));
 } else {
-	app.use(cors());
+	app.use(cors({
+		credentials: true,
+		origin: 'http://localhost:3000',
+	}));
 }
 
 mongoose.connect(uri, {

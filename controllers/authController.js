@@ -3,13 +3,12 @@ import { nanoid } from 'nanoid';
 import User from '../models/user.model.js';
 import AUTH_ERR from '../errors/authErrors.js';
 import {
-	hasAdminPermissions,
-	hasFrontendAPIKey,
 	sendCreateUser,
 } from '../helpers/authHelper.js';
+import jwt from 'jsonwebtoken';
+const { sign } = jwt;
 
 /**
- *
  * @param Expected request body:
  *        {
  *          username: string,
@@ -20,115 +19,62 @@ import {
  */
 export const createUser = async (req, res) => {
 	try {
-		const isAdmin = await hasAdminPermissions(req.headers.authorization);
-
-		if (!isAdmin) {
-			res.status(400).json({
-				message: 'Must be an admin to create a new user.',
-			});
-			return;
-		}
-		//console.log(req.body);
 		const data = await sendCreateUser(req.body);
 		res.status(200).json({
 			message: 'Successfully created user.',
 			data,
 		});
-
-		return;
 	} catch (error) {
 		res.status(500).json({
 			message: 'Failed to create user.',
 			error,
 			errCode: AUTH_ERR.AUTH001,
 		});
-
-		return;
 	}
 };
 
 /**
- *
  * @param Expected request parameter:
  *        {
  *          username: string,
  *        }
- * @param Expected HEADERS:
- *        {
- *          authorization: string,
- *        }
  * @param Responds with status code and messsage.
  */
-
 export const deleteUser = async (req, res) => {
 	try {
-		const isAdmin = await hasAdminPermissions(req.headers.authorization);
-
-		if (!isAdmin) {
-			res.status(400).json({
-				message: 'Invalid access - only admins can delete users',
-			});
-
-			return;
-		} else {
 			const response = await User.deleteOne({
 				username: req.params.username,
 			});
 
 			res.status(200).json({
 				message: `Successfully deleted ${response.n} user(s).`,
-				data: true,
 			});
-
-			return;
-		}
 	} catch (err) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to delete user',
 			error: err,
 			errCode: AUTH_ERR.AUTH002,
 		});
-
-		return;
 	}
 };
 
 /**
- * Requires Admin user access
- * @param Expected HEADERS:
- *        {
- *          authorization: string,
- *        }
  * @param Responds with array of users.
  */
 export const getUsers = async (req, res) => {
 	try {
-		const isAdmin = await hasAdminPermissions(req.headers.authorization);
-
-		if (!isAdmin) {
-			res.status(400).json({
-				message: 'Invalid access - only an admin can access all users',
-			});
-
-			return;
-		} else {
 			const users = await User.find();
 
 			res.status(200).json({
 				message: 'Successfully retrieved users.',
 				data: users,
 			});
-
-			return;
-		}
 	} catch (error) {
 		res.status(500).json({
 			message: 'Internal server error while attempting to retrieve users',
 			error,
 			errCode: AUTH_ERR.AUTH003,
 		});
-
-		return;
 	}
 };
 
@@ -159,21 +105,30 @@ export const loginUser = async (req, res) => {
 
 			// If user's hash matches request password, authenticate by responding with JWTs
 			if (match) {
-				// Create new access token and refresh token
-				const access_token = nanoid();
+				// Create new refresh token
+				// const refresh_token = nanoid();
 
-				const data = await User.findOneAndUpdate(
-					{ username: req.body.username },
-					{ $set: { access_token } }
-				);
+				// Creating new refresh token in db and associating it with user
+				//await new RefreshTokens(refresh_token, user).save();
 
+				// Creating new access token (formatted as jwt token)
+				const access_token = sign({username: user.username, permissions: user.permissions}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+
+				// Update user in db to hold new access_token --> will be changed to creating a new token document in a new token collection
+				// await User.findOneAndUpdate(
+				// 	{ username: req.body.username },
+				// 	{ $set: { access_token } }
+				// );
+
+				// Storing refresh_token as a cookie that will last for 1 week
+				// res.cookie('refresh_token', refresh_token, {httpOnly: true, maxAge: 60 * 60 * 24 * 7 });
+
+				res.cookie('access_token', access_token, {httpOnly: true, maxAge: 3600000, sameSite: 'None', secure: true})
 				res.status(200).json({
 					message: 'Successfully authenticated user.',
 					data: {
-						username: data.username,
-						access_token: access_token,
-						refresh_token: data.refresh_token,
-						permissions: data.permissions,
+						username: user.username,
+						permissions: user.permissions
 					},
 				});
 			} else {
@@ -201,6 +156,7 @@ export const loginUser = async (req, res) => {
 	}
 };
 
+// TODO fix after implementing refresh token
 /**
  *
  * @param Expected HEADER:
@@ -244,37 +200,22 @@ export const refreshToken = async (req, res) => {
 };
 
 /**
- *
- * @param Expected HEADER:
- *        {
- *          authorization: string,
- *        }
  * @param Responds with success/error message.
  */
 export const logoutUser = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
+			// Deleting the refresh_token entry in the refresh_token collection
+			// const data = await User.findOneAndUpdate(
+			// 	{ access_token: req.headers.authorization },
+			// 	{ $set: { access_token: '', refresh_token: '' } }
+			// );
 
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - user must be logged in to log out',
-			});
-		} else {
-			const refresh_token = nanoid();
-			const access_token = nanoid();
-
-			const data = await User.findOneAndUpdate(
-				{ access_token: req.headers.authorization },
-				{ $set: { access_token, refresh_token } }
-			);
-
-			if (data) {
+			res.clearCookie('access_token');
+			// if (data) {
 				res.status(200).json({
 					message: 'Successfully logged out user.',
-					data: true,
 				});
-			}
-		}
+			// }
 	} catch (error) {
 		res.status(500).json({
 			message: 'Server error while attempting to logout user',
@@ -285,41 +226,26 @@ export const logoutUser = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request body:
  *        {
  *          username: string,
- *        }
- * @param Expected HEADERS:
- *        {
- *          authorization: string,
  *        }
  * @param Responds with status code and messsage.
  */
 export const changeUsername = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - user must be logged in to change username',
-			});
-		} else {
 			const username = req.body.username;
 
 			const data = await User.findOneAndUpdate(
-				{ access_token: req.headers.authorization },
+				{ username: req.user.username },
 				{ $set: { username } }
 			);
 
-			//TODO: why true is sent?
 			if (data) {
 				res.status(200).json({
 					message: 'Successfully changed user name.',
-					data: true,
 				});
 			}
-		}
 	} catch (error) {
 		res.status(500).json({
 			message: 'Server error while attempting to change username',
@@ -330,42 +256,30 @@ export const changeUsername = async (req, res) => {
 };
 
 /**
- *
  * @param Expected request body:
  *        {
- *          username: string,
- *        }
- * @param Expected HEADERS:
- *        {
- *          authorization: string,
+ *          password: string,
  *        }
  * @param Responds with status code and messsage.
  */
 export const changePassword = async (req, res) => {
 	try {
-		const isMember = await hasFrontendAPIKey(req.headers.authorization);
-
-		if (!isMember) {
-			res.status(400).json({
-				message: 'Invalid access - user must be logged in to change password',
-			});
-		} else {
-			const access_token = nanoid();
 			const refresh_token = nanoid();
 			const hash = await bcrypt.hash(req.body.password, 10);
 
+			// TODO delete all refresh tokens associated with user --> possibly think about storing some sort of secret key in db 
+			// or attached to user which when password changes gets reset to something else (secret key is same as the one used to verify JWT)
+
 			const data = await User.findOneAndUpdate(
-				{ access_token: req.headers.authorization },
-				{ $set: { access_token, refresh_token, hash } }
+				{ username: req.user.username },
+				{ $set: { hash } }
 			);
 
 			if (data) {
 				res.status(200).json({
 					message: 'Successfully changed password.',
-					data: true,
 				});
 			}
-		}
 	} catch (error) {
 		res.status(500).json({
 			message: 'Server error while attempting to change password',

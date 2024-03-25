@@ -49,7 +49,10 @@ import {
 	getResourcesInCategory,
 	updateResource,
 } from './controllers/resourceController.js';
+import { authenticateTokenMiddleWare, hasAdminPermissions } from './middleware/authMiddleware.js';
 const router = express.Router();
+
+router.all('*', authenticateTokenMiddleWare);
 
 /**
  * SNAPSHOT ENDPOINTS
@@ -76,9 +79,9 @@ router.delete('/api/projects/:name', deleteProject);
 /**
  * AUTHENTICATION ENDPOINTS
  */
-router.post('/api/users', validate(userCreationSchema), createUser);
-router.get('/api/users', getUsers);
-router.delete('/api/users/:username', deleteUser);
+router.post('/api/users', hasAdminPermissions, validate(userCreationSchema), createUser);
+router.get('/api/users', hasAdminPermissions, getUsers);
+router.delete('/api/users/:username', hasAdminPermissions, deleteUser);
 router.post('/api/users/login', loginUser);
 router.post('/api/users/logout', logoutUser);
 router.get('/api/tokens/access_token', refreshToken);

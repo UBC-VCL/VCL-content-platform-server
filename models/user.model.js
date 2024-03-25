@@ -25,14 +25,14 @@ const userSchema = new Schema(
 			required: true,
 			trim: true,
 		},
-		refresh_token: {
-			type: String,
-			required: true,
-		},
-		access_token: {
-			type: String,
-			required: true,
-		},
+		// refresh_token: {
+		// 	type: String,
+		// 	required: true,
+		// },
+		// access_token: {
+		// 	type: String,
+		// 	required: true,
+		// },
 		member: {
 			type: mongoose.ObjectId,
 			ref: 'Member',
