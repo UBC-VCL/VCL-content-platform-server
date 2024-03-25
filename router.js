@@ -36,7 +36,7 @@ import {
 
 //MEMBER controller imports
 
-import { createMember, getMember } from './controllers/memberController.js';
+import { createMember, getMember, getProjectMembers } from './controllers/memberController.js';
 
 
 //QUERY controller imports
@@ -89,6 +89,7 @@ router.put('/api/users/change_password', changePassword);
 
 router.post('/api/members', createMember);
 router.get('/api/members', getMember);
+router.get('/api/members/:project', getProjectMembers);
 
 /**
  * RESOURCES ENDPOINTS

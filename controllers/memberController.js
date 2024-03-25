@@ -1,8 +1,6 @@
-
 import * as yup from 'yup';
 import { sendCreateMember } from '../helpers/memberHelper.js';
 import MEMBER_ERR from '../errors/memberErrors.js';
-import AUTH_ERR from '../errors/authErrors.js';
 import Member from '../models/member.model.js';
 import {
 	hasFrontendAPIKey
@@ -36,7 +34,8 @@ export const createMember = async (req, res) => {
 					linkedIn: yup.string().notRequired(),
 					email: yup.string().notRequired(),
 				}).required(),
-				message: yup.string().notRequired(),
+				blurb: yup.string().notRequired(),
+				isAlumni: yup.boolean().default(false).required(),
 			});
 
 
@@ -71,32 +70,53 @@ export const createMember = async (req, res) => {
 	}
 };
 
+/**
+ * @param Responds all members apart of lab.
+ */
 export const getMember = async (req, res) => {
-	const isMember = await hasFrontendAPIKey(req.headers.authorization);
+	try {
+		const members = await Member.find();
 
-	if (!isMember) {
-		res.status(400).json({
-			message: 'Invalid access - must be a member to access all members.',
+		res.status(200).json({
+			message: 'Successfully retrieved members.',
+			data: members,
 		});
 
 		return;
-	} else {
-		try {
-			const members = await Member.find();
-
-			res.status(200).json({
-				message: 'Successfully retrieved members.',
-				data: members,
-			});
-
-			return;
-		} catch (error) {
-			res.status(500).json({
-				message: 'Internal server error while attempting to retrieve members',
-				error,
-				errCode: AUTH_ERR.AUTH003,
-			});
-			return;
-		}
+	} catch (error) {
+		res.status(500).json({
+			message: 'Internal server error while attempting to retrieve members',
+			error,
+			errCode: MEMBER_ERR.MEMBER003,
+		});
+		return;
 	}
 };
+
+/**
+ *
+ * @param Expected request parameters:
+ *        {
+ *          project: string,
+ *        }
+ * @param Responds all members apart of project.
+ */
+export const getProjectMembers = async (req, res) => {
+	try {
+		const members = await Member.find({'project': req.params.project});
+
+		res.status(200).json({
+			message: `Successfully retrieved ${req.headers.project} team members.`,
+			data: members,
+		});
+
+		return;
+	} catch (error) {
+		res.status(500).json({
+			message: `Internal server error while attempting to retrieve ${req.headers.project} team members`,
+			error,
+			errCode: MEMBER_ERR.MEMBER004,
+		});
+		return;
+	}
+}
