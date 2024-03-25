@@ -1,6 +1,7 @@
 import httpMocks  from 'node-mocks-http';
 import Member from '../../../models/member.model.js';
-import {createMember} from '../../../controllers/memberController.js';
+import {createMember, getMember, getProjectMembers} from '../../../controllers/memberController.js';
+import authHelper from '../../../helpers/authHelper.js';
 
 //TODO: how can it send status code 500 ?
 const memberControllerTest= ()=>{
@@ -48,7 +49,8 @@ const memberControllerTest= ()=>{
 					position: 'testposition',
 					contact: {
 						email: 'npmtest6@gmail.com'
-					}
+					},
+					isAlumni: false,
 				}
 			});
 			const response = httpMocks.createResponse();
@@ -60,7 +62,7 @@ const memberControllerTest= ()=>{
 			expect(temp.data.project).toBe('619c08a2fde7a602c72198d4');
 			expect(temp.data.position).toBe('testposition');
 			expect(temp.data.contact.email).toBe('npmtest6@gmail.com');
-			// expect(temp.data.projects.length).toBe(1);
+			expect(temp.data.isAlumni).toBe(false);
 			await Member.deleteOne({
 				name: {
 					firstname: 'npm',
@@ -73,6 +75,57 @@ const memberControllerTest= ()=>{
 				}
 			});
 		});
+	});
+
+	describe('testing get all members', () => {
+		test('should pass', async () => {
+			var expectedCount = 0;
+			await Member.countDocuments({}).exec()
+				.then(count => {
+					expectedCount = count;
+				})
+				.catch(err => {
+					console.log(err);
+					fail();
+				});
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/members',
+			});
+			const response = httpMocks.createResponse();
+			await getMember(request, response);
+			expect(response._getStatusCode()).toBe(200);
+			const temp = JSON.parse(response._getData());
+			expect(temp.data.length).toBe(expectedCount);
+		})
+	});
+
+	describe('testing get all members apart of project', () => {
+		test('should pass', async () => {
+			var expectedCount = 0;
+			await Member.countDocuments({
+				'project': 'NOVA'
+			}).exec()
+				.then(count => {
+					expectedCount = count;
+				})
+				.catch(err => {
+					console.log(err);
+					fail();
+				});
+			const request = httpMocks.createRequest({
+				method: 'GET',
+				url: '/api/members/:project',
+				params: {
+					'project': 'NOVA',
+				}
+			});
+			const response = httpMocks.createResponse();
+			await getProjectMembers(request, response);
+			expect(response._getStatusCode()).toBe(200);
+			const temp = JSON.parse(response._getData());
+			expect(temp.data.length).toBe(expectedCount);
+		})
 	});
 };
 
