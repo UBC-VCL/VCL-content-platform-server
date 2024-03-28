@@ -50,6 +50,7 @@ import {
 	updateResource,
 } from './controllers/resourceController.js';
 import { authenticateTokenMiddleWare, hasAdminPermissions } from './middleware/authMiddleware.js';
+import { verifyResourceAndOwner } from './middleware/resourceMiddleware.js';
 const router = express.Router();
 
 router.all('*', authenticateTokenMiddleWare);
@@ -100,8 +101,8 @@ router.get('/api/members/:project', getProjectMembers);
 router.post('/api/resources', validate(resourceValidationSchema), createResource);
 router.get('/api/resources/:category', getResourcesInCategory);
 router.get('/api/resources/:id', getResource);
-router.patch('/api/resources/:id', validate(resourceValidationSchema), updateResource);
-router.delete('/api/resources/:id', deleteResource);
+router.patch('/api/resources/:id', verifyResourceAndOwner, validate(resourceValidationSchema), updateResource);
+router.delete('/api/resources/:id', verifyResourceAndOwner, deleteResource);
 
 /**
  * QUERY ENDPOINTS

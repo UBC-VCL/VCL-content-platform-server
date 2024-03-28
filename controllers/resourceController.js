@@ -1,8 +1,6 @@
 import Resource from '../models/resource.model.js';
 import RESOURCE_ERR from '../errors/resourceErrors.js';
-import User from '../models/user.model.js';
-import { isResourceOwner, separateSubCategories } from '../helpers/resourceHelper.js';
-import { USER_TYPES } from '../helpers/types.js';
+import { separateSubCategories } from '../helpers/resourceHelper.js';
 
 /**
  * @param Expected request body:
@@ -21,18 +19,12 @@ import { USER_TYPES } from '../helpers/types.js';
 export const createResource = async (req, res) => {
 	try {
 		const { title, description, category, author, resource_link } = req.body;
-		const ownerUser = await User.findOne({ username: req.user.username });
-		if (!ownerUser) {
-			throw 'logged in user could not be found, when it should have been.';
-		}
-
-		const owner = ownerUser._id;
 		const newResource = new Resource({
 			title,
 			description,
 			category,
 			author,
-			owner,
+			owner: req.user.id,
 			resource_link,
 		});
 
@@ -133,30 +125,9 @@ export const getResource = async (req, res) => {
  */
 export const updateResource = async (req, res) => {
 	try {
-		const id = req.params.id;
-		try {
-			const isOwner = await isResourceOwner(id, req.user.username);
-			if (!isOwner && req.user.permissions !== USER_TYPES.ADMIN) {
-				res.status(400).json({
-					message:
-            'Invalid access - must be either owner of resource or an admin to update a resource',
-				});
-				return;
-			}
-		} catch (error) {
-			if (error === 'resource not found') {
-				res.status(404).json({
-					message: `Could not find resource with id ${id} to update`,
-				});
-				return;
-			} else {
-				throw error;
-			}
-		}
-
 		const { title, description, category, author, resource_link } = req.body;
 		const updatedResource = await Resource.findOneAndUpdate(
-			{ _id: id },
+			{ _id: req.params.id },
 			{ title, description, category, author, resource_link },
 			{ new: true }
 		).populate({ path: 'owner', select: 'username' });
@@ -190,26 +161,6 @@ export const deleteResource = async (req, res) => {
 	try {
 		const id = req.params.id;
 		
-		try {
-			const isOwner = await isResourceOwner(id, req.user.username);
-			if (!isOwner && req.user.permissions !== USER_TYPES.ADMIN) {
-				res.status(400).json({
-					message:
-            'Invalid access - must be either owner of resource or an admin to delete a resource',
-				});
-				return;
-			}
-		} catch (error) {
-			if (error === 'resource not found') {
-				res.status(404).json({
-					message: `Could not find resource with id ${id} to delete`,
-				});
-				return;
-			} else {
-				throw error;
-			}
-		}
-
 		const { deletedCount } = await Resource.deleteOne({ _id: id });
 		if (deletedCount === 0) {
 			throw `Resource with id <${id}> not found, when it should have been`;

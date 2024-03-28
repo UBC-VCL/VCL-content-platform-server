@@ -12,7 +12,6 @@ import Resource from '../../../models/resource.model.js';
 import Member from '../../../models/member.model.js';
 import User from '../../../models/user.model.js';
 import { sendCreateMember } from '../../../helpers/memberHelper.js';
-import mongoose from 'mongoose';
 
 const resourceControllerTest = () => {
 	describe('resource controller tests', () => {
@@ -32,28 +31,29 @@ const resourceControllerTest = () => {
 					contact: {
 						email: 'npmtest6@gmail.com',
 					},
+					isAlumni: false,
 				})
 				let memberId = member._id.toString();
 		
-				console.log('Creating users for resource tests');
+				console.log('Creating user for resource tests');
 				userId = await sendCreateUser({
 					username: 'resourceUser',
 					password: 'resourceUser',
 					permissions: 'default_user',
 					member: memberId,
 				})
-				await sendCreateUser({
-					username: 'notOwnerNotAdmin',
-					password: 'notOwnerNotAdmin',
-					permissions: 'default_user',
-					member: mongoose.Types.ObjectId(),
-				})
-				await sendCreateUser({
-					username: 'resourceAdmin',
-					password: 'resourceAdmin',
-					permissions: 'admin',
-					member: mongoose.Types.ObjectId(),
-				})
+				// await sendCreateUser({
+				// 	username: 'notOwnerNotAdmin',
+				// 	password: 'notOwnerNotAdmin',
+				// 	permissions: 'default_user',
+				// 	member: mongoose.Types.ObjectId(),
+				// })
+				// await sendCreateUser({
+				// 	username: 'resourceAdmin',
+				// 	password: 'resourceAdmin',
+				// 	permissions: 'admin',
+				// 	member: mongoose.Types.ObjectId(),
+				// })
 			} catch (error) {
 				console.log('An error occured while trying to setup test data: ' + error);
 			}
@@ -61,16 +61,16 @@ const resourceControllerTest = () => {
 	
 		afterAll(async () => {
 			console.log('Cleaning up setup data for resource tests');
-			console.log('Deleting users for resource tests');
+			console.log('Deleting user for resource tests');
 			await User.deleteOne({
 				username: 'resourceUser'
 			})
-			await User.deleteOne({
-				username: 'notOwnerNotAdmin'
-			})
-			await User.deleteOne({
-				username: 'resourceAdmin'
-			})
+			// await User.deleteOne({
+			// 	username: 'notOwnerNotAdmin'
+			// })
+			// await User.deleteOne({
+			// 	username: 'resourceAdmin'
+			// })
 	
 			console.log('Deleting Member for resource tests');
 			await Member.deleteOne({
@@ -102,7 +102,7 @@ const resourceControllerTest = () => {
 						resource_link: 'https://www.google.com',
 					},
 				});
-				request.user = {username: 'resourceUser'};
+				request.user = {id: userId._id };
 	
 				const response = httpMocks.createResponse();
 				await createResource(request, response);
@@ -162,7 +162,7 @@ const resourceControllerTest = () => {
 						resource_link: 'https://www.google.com',
 					},
 				});
-				request.user = {username: 'bad_username'};
+				request.user = {id: 'bad_id'};
 	
 				const response = httpMocks.createResponse();
 				await createResource(request, response);
@@ -171,9 +171,6 @@ const resourceControllerTest = () => {
 				const temp = JSON.parse(response._getData());
 				expect(temp.message).toBe(
 					'Internal server error while attempting to create resource'
-				);
-				expect(temp.error).toBe(
-					'logged in user could not be found, when it should have been.'
 				);
 				expect(temp.errCode).toBe(RESOURCE_ERR.RESOURCE001);
 			});
@@ -303,43 +300,42 @@ const resourceControllerTest = () => {
 		});
 	
 		describe('test update resource', () => {
-			test('update as user with admin permissions, should pass', async () => {	
-				const request = httpMocks.createRequest({
-					method: 'PATCH',
-					url: '/api/resources/:id',
-					params: {
-						id: resourceId,
-					},
-					body: {
-						title: 'change_name_test',
-						description: 'change_desc',
-						category: {
-							main: 'Skills Workshops',
-							sub: 'Coding'
-						},
-						author: 'New Author',
-						resource_link: 'https://www.youtube.com',
-					},
-				});
-				request.user = {username: 'resourceAdmin', permissions: 'admin'};
+			// test('update as user with admin permissions, should pass', async () => {	
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'PATCH',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resourceId,
+			// 		},
+			// 		body: {
+			// 			title: 'change_name_test',
+			// 			description: 'change_desc',
+			// 			category: {
+			// 				main: 'Skills Workshops',
+			// 				sub: 'Coding'
+			// 			},
+			// 			author: 'New Author',
+			// 			resource_link: 'https://www.youtube.com',
+			// 		},
+			// 	});
 
-				const response = httpMocks.createResponse();
-				await updateResource(request, response);
+			// 	const response = httpMocks.createResponse();
+			// 	await updateResource(request, response);
 	
-				expect(response._getStatusCode()).toBe(200);
-				const temp = JSON.parse(response._getData());
+			// 	expect(response._getStatusCode()).toBe(200);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(temp.message).toBe('Successfully updated resource');
-				expect(temp.data.title).toBe('change_name_test');
-				expect(temp.data.description).toBe('change_desc');
-				expect(temp.data.category.main).toBe('Skills Workshops');
-				expect(temp.data.category.sub).toBe('Coding');
-				expect(temp.data.author).toBe('New Author');
-				expect(temp.data.owner.username).toBe('resourceUser');
-				expect(temp.data.resource_link).toBe('https://www.youtube.com');
-			});
+			// 	expect(temp.message).toBe('Successfully updated resource');
+			// 	expect(temp.data.title).toBe('change_name_test');
+			// 	expect(temp.data.description).toBe('change_desc');
+			// 	expect(temp.data.category.main).toBe('Skills Workshops');
+			// 	expect(temp.data.category.sub).toBe('Coding');
+			// 	expect(temp.data.author).toBe('New Author');
+			// 	expect(temp.data.owner.username).toBe('resourceUser');
+			// 	expect(temp.data.resource_link).toBe('https://www.youtube.com');
+			// });
 
-			test('update as resource owner, should pass', async () => {
+			test('update resource, should pass', async () => {
 				const request = httpMocks.createRequest({
 					method: 'PATCH',
 					url: '/api/resources/:id',
@@ -357,7 +353,6 @@ const resourceControllerTest = () => {
 						resource_link: 'https://www.google.com',
 					},
 				});
-				request.user = {username: 'resourceUser', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
@@ -376,36 +371,35 @@ const resourceControllerTest = () => {
 				expect(temp.data.resource_link).toBe('https://www.google.com');
 			});
 
-			test('update not the owner or an admin, should fail', async () => {
-				const request = httpMocks.createRequest({
-					method: 'PATCH',
-					url: '/api/resources/:id',
-					params: {
-						id: resourceId,
-					},
-					body: {
-						title: 'change_name_test',
-						description: 'change_desc',
-						category: {
-							main: 'Skills Workshops',
-							sub: 'Coding'
-						},
-						author: 'New Author',
-						resource_link: 'https://www.youtube.com',
-					},
-				});
-				request.user = {username: 'notOwnerNotAdmin', permissions: 'default_user'};
+			// test('update not the owner or an admin, should fail', async () => {
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'PATCH',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resourceId,
+			// 		},
+			// 		body: {
+			// 			title: 'change_name_test',
+			// 			description: 'change_desc',
+			// 			category: {
+			// 				main: 'Skills Workshops',
+			// 				sub: 'Coding'
+			// 			},
+			// 			author: 'New Author',
+			// 			resource_link: 'https://www.youtube.com',
+			// 		},
+			// 	});
 	
-				const response = httpMocks.createResponse();
-				await updateResource(request, response);
+			// 	const response = httpMocks.createResponse();
+			// 	await updateResource(request, response);
 	
-				expect(response._getStatusCode()).toBe(400);
-				const temp = JSON.parse(response._getData());
+			// 	expect(response._getStatusCode()).toBe(400);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(temp.message).toBe(
-					'Invalid access - must be either owner of resource or an admin to update a resource'
-				);
-			});
+			// 	expect(temp.message).toBe(
+			// 		'Invalid access - must be either owner of resource or an admin to update a resource'
+			// 	);
+			// });
 
 			// test('not a user, should fail', async () => {
 			// 	const request = httpMocks.createRequest({
@@ -455,41 +449,40 @@ const resourceControllerTest = () => {
 						resource_link: 'https://www.youtube.com',
 					},
 				});
-				request.user = {username: 'resourceUser', permissions: 'default_user'};
 	
 				const response = httpMocks.createResponse();
 				await updateResource(request, response);
 	
-				expect(response._getStatusCode()).toBe(404);
+				expect(response._getStatusCode()).toBe(400);
 				const temp = JSON.parse(response._getData());
 	
 				expect(temp.message).toBe(
-					'Could not find resource with id 5f85fd2f0ab7c11e186f146b to update'
+					'Could not update resource'
 				);
 			});
 		});
 	
 		describe('test delete resource', () => {
-			test('delete not as the owner or an admin, should fail', async () => {
-				const request = httpMocks.createRequest({
-					method: 'DELETE',
-					url: '/api/resources/:id',
-					params: {
-						id: resourceId,
-					},
-				});
-				request.user = {username: 'notOwnerNotAdmin', permissions: 'default_user'};
+			// test('delete not as the owner or an admin, should fail', async () => {
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'DELETE',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resourceId,
+			// 		},
+			// 	});
+			// 	request.user = {username: 'notOwnerNotAdmin', permissions: 'default_user'};
 	
-				const response = httpMocks.createResponse();
-				await deleteResource(request, response);
+			// 	const response = httpMocks.createResponse();
+			// 	await deleteResource(request, response);
 
-				expect(response._getStatusCode()).toBe(400);
-				const temp = JSON.parse(response._getData());
+			// 	expect(response._getStatusCode()).toBe(400);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(temp.message).toBe(
-					'Invalid access - must be either owner of resource or an admin to delete a resource'
-				);
-			});
+			// 	expect(temp.message).toBe(
+			// 		'Invalid access - must be either owner of resource or an admin to delete a resource'
+			// 	);
+			// });
 
 			test('send non-existent resource id, should fail', async () => {
 				const request = httpMocks.createRequest({
@@ -504,12 +497,15 @@ const resourceControllerTest = () => {
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);
 	
-				expect(response._getStatusCode()).toBe(404);
+				expect(response._getStatusCode()).toBe(500);
 				const temp = JSON.parse(response._getData());
 	
 				expect(temp.message).toBe(
-					'Could not find resource with id 5f85fd2f0ab7c11e186f146b to delete'
+					'Internal server error while attempting to delete resource'
 				);
+				expect(temp.error).toBe(
+					'Resource with id <5f85fd2f0ab7c11e186f146b> not found, when it should have been'
+				)
 			});
 
 			// test('not a user, should fail', async () => {
@@ -535,7 +531,7 @@ const resourceControllerTest = () => {
 			// 	);
 			// });
 
-			test('delete as owner, should pass', async () => {
+			test('delete resource, should pass', async () => {
 				const request = httpMocks.createRequest({
 					method: 'DELETE',
 					url: '/api/resources/:id',
@@ -543,7 +539,6 @@ const resourceControllerTest = () => {
 						id: resourceId,
 					},
 				});
-				request.user = {username: 'resourceUser', permissions: 'default_user'};
 
 				const response = httpMocks.createResponse();
 				await deleteResource(request, response);
@@ -554,44 +549,44 @@ const resourceControllerTest = () => {
 				expect(temp.message).toBe('Successfully deleted resource');
 			});
 
-			test('delete as admin, should pass', async () => {
-				const createRequest = httpMocks.createRequest({
-					method: 'POST',
-					url: '/api/resources',
-					body: {
-						title: 'test_title',
-						description: 'test_description',
-						category: {
-							main: 'COGS 402',
-							sub: '2024',
-						},
-						author: 'Resource Test',
-						resource_link: 'https://www.google.com',
-					},
-				});
-				createRequest.user = {username: 'resourceUser'};
+			// test('delete as admin, should pass', async () => {
+			// 	const createRequest = httpMocks.createRequest({
+			// 		method: 'POST',
+			// 		url: '/api/resources',
+			// 		body: {
+			// 			title: 'test_title',
+			// 			description: 'test_description',
+			// 			category: {
+			// 				main: 'COGS 402',
+			// 				sub: '2024',
+			// 			},
+			// 			author: 'Resource Test',
+			// 			resource_link: 'https://www.google.com',
+			// 		},
+			// 	});
+			// 	createRequest.user = {username: 'resourceUser'};
 	
-				const createResponse = httpMocks.createResponse();
-				await createResource(createRequest, createResponse);
-				const resource = JSON.parse(createResponse._getData());
+			// 	const createResponse = httpMocks.createResponse();
+			// 	await createResource(createRequest, createResponse);
+			// 	const resource = JSON.parse(createResponse._getData());
 	
-				const request = httpMocks.createRequest({
-					method: 'DELETE',
-					url: '/api/resources/:id',
-					params: {
-						id: resource.data._id,
-					},
-				});
-				request.user = {username: 'resourceAdmin', permissions: 'admin'};
+			// 	const request = httpMocks.createRequest({
+			// 		method: 'DELETE',
+			// 		url: '/api/resources/:id',
+			// 		params: {
+			// 			id: resource.data._id,
+			// 		},
+			// 	});
+			// 	request.user = {username: 'resourceAdmin', permissions: 'admin'};
 	
-				const response = httpMocks.createResponse();
-				await deleteResource(request, response);
+			// 	const response = httpMocks.createResponse();
+			// 	await deleteResource(request, response);
 	
-				expect(response._getStatusCode()).toBe(200);
-				const temp = JSON.parse(response._getData());
+			// 	expect(response._getStatusCode()).toBe(200);
+			// 	const temp = JSON.parse(response._getData());
 	
-				expect(temp.message).toBe('Successfully deleted resource');
-			});
+			// 	expect(temp.message).toBe('Successfully deleted resource');
+			// });
 		});
 	})
 };

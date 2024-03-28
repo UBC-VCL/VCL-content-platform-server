@@ -112,7 +112,7 @@ export const loginUser = async (req, res) => {
 				//await new RefreshTokens(refresh_token, user).save();
 
 				// Creating new access token (formatted as jwt token)
-				const access_token = sign({username: user.username, permissions: user.permissions}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+				const access_token = sign({id: user._id, username: user.username, permissions: user.permissions}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
 
 				// Update user in db to hold new access_token --> will be changed to creating a new token document in a new token collection
 				// await User.findOneAndUpdate(
